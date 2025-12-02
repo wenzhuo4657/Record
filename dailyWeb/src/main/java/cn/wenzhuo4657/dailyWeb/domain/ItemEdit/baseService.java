@@ -9,9 +9,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 文档默认行为定义
+ * 基本接口： 查询、初始化
  */
-public interface IItemEditService {
+public interface baseService {
 
     /**
      * 增加item
@@ -23,11 +23,11 @@ public interface IItemEditService {
      */
     boolean insertItem_II(InsertItemDto dto, Long userId, Map<String ,String> fieldMap);
 
-
     /**
      * 修改item
      */
     boolean updateItem(UpdateItemDto dto);
+
 
     /**
      * 获取item

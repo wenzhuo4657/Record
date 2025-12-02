@@ -22,7 +22,7 @@ import java.util.*;
  * 默认文档行为实现
  */
 @Service
-public  class ItemEditService implements IItemEditService,PlanService {
+public  class ItemEditService implements baseService,PlanService {
     Logger log = org.slf4j.LoggerFactory.getLogger(ItemEditService.class);
 
     @Autowired
@@ -76,16 +76,12 @@ public  class ItemEditService implements IItemEditService,PlanService {
             return  false;
         }
 
-
-
     }
 
     @Override
     public boolean updateItem(UpdateItemDto dto) {
-
+//        todo 部分类型可以用，部分类型不能用
             return mdRepository.updateItem(dto.getIndex(),dto.getContent());
-
-
     }
 
     @Override
@@ -140,7 +136,7 @@ public  class ItemEditService implements IItemEditService,PlanService {
         }
         return true;
     }
-//    todo 思考重构，当前模式迟早会变成屎山
+
 
     @Override
     public boolean CheckListToday(Long id) {
@@ -175,8 +171,6 @@ public  class ItemEditService implements IItemEditService,PlanService {
                 String content = String.join("\n", set);
                 docsItem.setItemContent(content);
                 mdRepository.updateItem(docsItem.getDocsId(),docsItem.getItemContent());
-
-
 
             }
 

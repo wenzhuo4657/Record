@@ -30,7 +30,4 @@ public interface PlanService {
     public boolean CheckListToday(Long  id);
 
 
-
-
-
 }
