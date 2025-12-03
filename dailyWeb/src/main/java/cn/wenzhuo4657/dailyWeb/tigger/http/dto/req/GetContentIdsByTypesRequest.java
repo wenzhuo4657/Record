@@ -1,4 +1,4 @@
-package cn.wenzhuo4657.dailyWeb.tigger.http.dto;
+package cn.wenzhuo4657.dailyWeb.tigger.http.dto.req;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;

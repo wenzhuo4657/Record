@@ -5,6 +5,7 @@ import cn.dev33.satoken.stp.StpUtil;
 import cn.wenzhuo4657.dailyWeb.domain.auth.UserService;
 import cn.wenzhuo4657.dailyWeb.domain.auth.model.dto.RegisterByOauthDto;
 import cn.wenzhuo4657.dailyWeb.domain.auth.model.dto.UserDto;
+import cn.wenzhuo4657.dailyWeb.tigger.http.dto.res.UserResponse;
 
 import cn.wenzhuo4657.dailyWeb.types.utils.AuthUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -89,7 +90,6 @@ public class AuthController {
             registerByOauthDto.setOauth_provider_avatar(authUser.getAvatar());
             registerByOauthDto.setOauth_provider_username(authUser.getUsername());
             registerByOauthDto.setOauth_provider_user_id(authUser.getUuid());
-//            todo 底层改id --> user_id为Long
             UserDto user = userService.registerByOauth(registerByOauthDto);
 
             StpUtil.login(user.getId());
@@ -102,8 +102,14 @@ public class AuthController {
 
             try {
                 String token = StpUtil.getTokenValue();
+                // 将UserDto转换为UserResponse，id字段转为String
+                UserResponse userResponse = new UserResponse(
+                        user.getId().toString(),
+                        user.getUsername(),
+                        user.getAvatar()
+                );
                 String userInfoJson = URLEncoder.encode(
-                        new ObjectMapper().writeValueAsString(user),
+                        new ObjectMapper().writeValueAsString(userResponse),
                         StandardCharsets.UTF_8
                 );
                 response.sendRedirect(name+"/auth/callback?token=" + token + "&userInfo=" + userInfoJson);

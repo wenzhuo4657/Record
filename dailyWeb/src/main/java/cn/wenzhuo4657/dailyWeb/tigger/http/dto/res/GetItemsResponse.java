@@ -1,16 +1,15 @@
-package cn.wenzhuo4657.dailyWeb.domain.ItemEdit.model.dto;
-
+package cn.wenzhuo4657.dailyWeb.tigger.http.dto.res;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
-public class ItemDto {
+public class GetItemsResponse {
 
-    private  int id;
+
+
 
 
     @NotNull
-    @Min(value = 0)
     private String index;
 
     @NotNull
@@ -20,22 +19,16 @@ public class ItemDto {
 
     private String expand; // 额外字段数据，随类型动态变化
 
-    public ItemDto() {
-    }
 
-    public ItemDto(String index, String title, String content, String expand) {
+    public GetItemsResponse(String index, String title, String content, String expand) {
         this.index = index;
         this.title = title;
         this.content = content;
         this.expand = expand;
     }
 
-    public int getId() {
-        return id;
-    }
 
-    public void setId(int id) {
-        this.id = id;
+    public GetItemsResponse() {
     }
 
     public String getIndex() {
@@ -70,4 +63,3 @@ public class ItemDto {
         this.expand = expand;
     }
 }
-

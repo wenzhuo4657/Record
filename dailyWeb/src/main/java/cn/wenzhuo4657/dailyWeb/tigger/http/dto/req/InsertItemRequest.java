@@ -1,9 +1,8 @@
-package cn.wenzhuo4657.dailyWeb.tigger.http.dto;
+package cn.wenzhuo4657.dailyWeb.tigger.http.dto.req;
 
 import jakarta.validation.constraints.NotNull;
 
-public class GetItemsRequest {
-
+public class InsertItemRequest {
 
     @NotNull
     private String docsId;
@@ -11,15 +10,13 @@ public class GetItemsRequest {
     @NotNull
     private int type;
 
+    public InsertItemRequest() {
+    }
 
-    public GetItemsRequest(String docsId, int type) {
+    public InsertItemRequest(String docsId, int type) {
         this.docsId = docsId;
         this.type = type;
     }
-
-    public GetItemsRequest() {
-    }
-
 
     public String getDocsId() {
         return docsId;

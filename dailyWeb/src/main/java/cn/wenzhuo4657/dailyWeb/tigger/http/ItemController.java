@@ -1,11 +1,9 @@
 package cn.wenzhuo4657.dailyWeb.tigger.http;
 
 import cn.wenzhuo4657.dailyWeb.domain.ItemEdit.ItemEditService;
-import cn.wenzhuo4657.dailyWeb.domain.ItemEdit.model.dto.InsertItemDto;
-import cn.wenzhuo4657.dailyWeb.domain.ItemEdit.model.dto.QueryItemDto;
-import cn.wenzhuo4657.dailyWeb.domain.ItemEdit.model.dto.UpdateCheckListDto;
-import cn.wenzhuo4657.dailyWeb.domain.ItemEdit.model.dto.UpdateItemDto;
-import cn.wenzhuo4657.dailyWeb.tigger.http.dto.*;
+import cn.wenzhuo4657.dailyWeb.domain.ItemEdit.model.dto.*;
+import cn.wenzhuo4657.dailyWeb.tigger.http.dto.req.*;
+import cn.wenzhuo4657.dailyWeb.tigger.http.dto.res.GetItemsResponse;
 import cn.wenzhuo4657.dailyWeb.types.utils.AuthUtils;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +15,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Controller("item")
 @ResponseBody
@@ -37,7 +37,19 @@ public class ItemController {
         QueryItemDto dto=new QueryItemDto();
         dto.setType(type);
         dto.setDocsId(docsId);
-        return ResponseEntity.ok(itemEditService.getItem(dto));
+
+        List<ItemDto> items = itemEditService.getItem(dto);
+
+        List<GetItemsResponse> collect = items.stream()
+                .map(item -> {
+                    GetItemsResponse response = new GetItemsResponse();
+                    response.setIndex(item.getIndex());
+                    response.setTitle(item.getTitle());
+                    response.setContent(item.getContent());
+                    response.setExpand(item.getExpand());
+                    return response;
+                }).collect(Collectors.toList());
+        return ResponseEntity.ok(collect);
     }
 
     @PostMapping("/insert")

@@ -5,7 +5,9 @@ import cn.wenzhuo4657.dailyWeb.domain.Types.ITypesService;
 
 import cn.wenzhuo4657.dailyWeb.domain.Types.model.dto.DocsDto;
 import cn.wenzhuo4657.dailyWeb.domain.Types.model.dto.TypeDto;
-import cn.wenzhuo4657.dailyWeb.tigger.http.dto.GetContentIdsByTypesRequest;
+import cn.wenzhuo4657.dailyWeb.tigger.http.dto.req.GetContentIdsByTypesRequest;
+import cn.wenzhuo4657.dailyWeb.tigger.http.dto.res.DocsResponse;
+import cn.wenzhuo4657.dailyWeb.tigger.http.dto.res.TypeResponse;
 import cn.wenzhuo4657.dailyWeb.types.utils.AuthUtils;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller(value = "types")
 @ResponseBody
@@ -29,16 +32,22 @@ public class TypeController {
 
 
     @RequestMapping(value = "/getAllTypes")
-    public List<TypeDto> getAllTypes() {
-        return typesService.getAllTypes(AuthUtils.getLoginId());
+    public List<TypeResponse> getAllTypes() {
+        List<TypeDto> typeDtos = typesService.getAllTypes(AuthUtils.getLoginId());
+        return typeDtos.stream()
+                .map(dto -> new TypeResponse(dto.getId().toString(), dto.getName()))
+                .collect(Collectors.toList());
     }
 
 
     @RequestMapping(value = "/getContentIdsByTypes")
     public ResponseEntity<?> getTypesWithItems(@Valid @RequestBody GetContentIdsByTypesRequest request) {
         Long typeId = Long.valueOf(request.getId());
-        List<DocsDto> result = typesService.getContentNameIdById(typeId, AuthUtils.getLoginId());
-        return ResponseEntity.ok(result);
+        List<DocsDto> docsDtos = typesService.getContentNameIdById(typeId, AuthUtils.getLoginId());
+        List<DocsResponse> docsResponses = docsDtos.stream()
+                .map(dto -> new DocsResponse(dto.getId().toString(), dto.getName()))
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(docsResponses);
     }
 
 }

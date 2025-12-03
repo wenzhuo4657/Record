@@ -56,7 +56,7 @@ public    class TypeStrategyImpl implements TypeStrategy {
 
 
             ItemDto itemDto = new ItemDto();
-            itemDto.setIndex(item.getIndex());
+            itemDto.setIndex(item.getIndex().toString());
             itemDto.setTitle(getTitleFn().apply(itemType,item));
             itemDto.setContent(item.getItemContent());
             itemDto.setExpand(getExpandFn().apply(itemType,item));
