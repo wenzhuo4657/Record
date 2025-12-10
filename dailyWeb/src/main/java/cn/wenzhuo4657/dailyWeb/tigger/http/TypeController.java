@@ -5,6 +5,7 @@ import cn.wenzhuo4657.dailyWeb.domain.Types.ITypesService;
 
 import cn.wenzhuo4657.dailyWeb.domain.Types.model.dto.DocsDto;
 import cn.wenzhuo4657.dailyWeb.domain.Types.model.dto.TypeDto;
+import cn.wenzhuo4657.dailyWeb.tigger.http.dto.ApiResponse;
 import cn.wenzhuo4657.dailyWeb.tigger.http.dto.req.GetContentIdsByTypesRequest;
 import cn.wenzhuo4657.dailyWeb.tigger.http.dto.res.DocsResponse;
 import cn.wenzhuo4657.dailyWeb.tigger.http.dto.res.TypeResponse;
@@ -32,22 +33,32 @@ public class TypeController {
 
 
     @RequestMapping(value = "/getAllTypes")
-    public List<TypeResponse> getAllTypes() {
+    public ResponseEntity<ApiResponse<List<TypeResponse>>> getAllTypes() {
         List<TypeDto> typeDtos = typesService.getAllTypes(AuthUtils.getLoginId());
-        return typeDtos.stream()
+
+
+        List<TypeResponse> collect = typeDtos.stream()
                 .map(dto -> new TypeResponse(dto.getId().toString(), dto.getName()))
                 .collect(Collectors.toList());
+
+        ApiResponse<List<TypeResponse>> listApiResponse = ApiResponse.success();
+        listApiResponse.setData(collect);
+
+        return ResponseEntity.ok(listApiResponse);
     }
 
 
     @RequestMapping(value = "/getContentIdsByTypes")
-    public ResponseEntity<?> getTypesWithItems(@Valid @RequestBody GetContentIdsByTypesRequest request) {
+    public ResponseEntity<ApiResponse<List<DocsResponse>>> getTypesWithItems(@Valid @RequestBody GetContentIdsByTypesRequest request) {
         Long typeId = Long.valueOf(request.getId());
         List<DocsDto> docsDtos = typesService.getContentNameIdById(typeId, AuthUtils.getLoginId());
         List<DocsResponse> docsResponses = docsDtos.stream()
                 .map(dto -> new DocsResponse(dto.getId().toString(), dto.getName()))
                 .collect(Collectors.toList());
-        return ResponseEntity.ok(docsResponses);
+        ApiResponse<List<DocsResponse>> listApiResponse = ApiResponse.success();
+        listApiResponse.setData(docsResponses);
+
+        return ResponseEntity.ok(listApiResponse);
     }
 
 }

@@ -3,6 +3,7 @@ package cn.wenzhuo4657.dailyWeb.tigger.http;
 
 import cn.wenzhuo4657.dailyWeb.Main;
 import cn.wenzhuo4657.dailyWeb.domain.system.service.SystemService;
+import cn.wenzhuo4657.dailyWeb.tigger.http.dto.ApiResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,6 +75,7 @@ public class SystemController {
                     .build();
 
 
+
             ResponseEntity<Resource> res = ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION, cd.toString())
                     .header(HttpHeaders.CACHE_CONTROL, "no-store") // 按需调整缓存策略
@@ -98,13 +100,9 @@ public class SystemController {
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<?> uploadFile(@RequestParam("file") MultipartFile file) throws IOException {
-
-
-
-
+    public ResponseEntity<ApiResponse> uploadFile(@RequestParam("file") MultipartFile file) throws IOException {
         if (file == null || file.isEmpty()) {
-            return ResponseEntity.badRequest().body("{\"error\":\"文件为空\"}");
+            return ResponseEntity.ok().body(ApiResponse.error("文件不能为空"));
         }
 
         Path filePath = Main.getFilePath();
@@ -120,7 +118,7 @@ public class SystemController {
         systemService.reset(tempFile);
 
 
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok().body(ApiResponse.success());
     }
 
 

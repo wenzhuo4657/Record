@@ -40,7 +40,6 @@ public class TypesRepository implements ITypesRepository {
 
     @Override
     public List<TypeDto> getAllByUserId(Long userId) {
-        log.warn("暂时没有处理动态路由----");
 //        todo 这里需要调整为动态路由，根据用户身份来做权限控制
         List<DocsType> all = docsTypeDao.getAll();
         List<TypeDto> typeDtos = new ArrayList<>();

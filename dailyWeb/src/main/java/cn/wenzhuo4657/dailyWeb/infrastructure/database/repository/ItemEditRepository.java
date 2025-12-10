@@ -7,6 +7,7 @@ import cn.wenzhuo4657.dailyWeb.infrastructure.database.dao.DocsItemDao;
 import cn.wenzhuo4657.dailyWeb.infrastructure.database.entity.DocsItem;
 import cn.wenzhuo4657.dailyWeb.types.Exception.AppException;
 import cn.wenzhuo4657.dailyWeb.types.Exception.ResponseCode;
+import io.micrometer.common.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -34,6 +35,9 @@ public class ItemEditRepository implements IItemEditRepository {
 
     @Override
     public boolean updateItem(Long index, String content) {
+        if (StringUtils.isEmpty(content)){
+            content="";
+        }
 
         DocsItem item=new DocsItem();
         item.setIndex(index);

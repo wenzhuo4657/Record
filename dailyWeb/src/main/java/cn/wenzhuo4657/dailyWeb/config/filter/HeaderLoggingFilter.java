@@ -16,7 +16,10 @@ import org.springframework.web.util.ContentCachingResponseWrapper;
 import java.io.IOException;
 import java.util.*;
 
-@Component
+/**
+ * 打印http请求和响应的header, 不包含实际数据，
+ */
+//@Component
 public class HeaderLoggingFilter extends OncePerRequestFilter {
 
     private static final Logger log = LoggerFactory.getLogger(HeaderLoggingFilter.class);

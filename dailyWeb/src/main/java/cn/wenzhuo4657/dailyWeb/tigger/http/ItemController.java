@@ -2,6 +2,7 @@ package cn.wenzhuo4657.dailyWeb.tigger.http;
 
 import cn.wenzhuo4657.dailyWeb.domain.ItemEdit.ItemEditService;
 import cn.wenzhuo4657.dailyWeb.domain.ItemEdit.model.dto.*;
+import cn.wenzhuo4657.dailyWeb.tigger.http.dto.ApiResponse;
 import cn.wenzhuo4657.dailyWeb.tigger.http.dto.req.*;
 import cn.wenzhuo4657.dailyWeb.tigger.http.dto.res.GetItemsResponse;
 import cn.wenzhuo4657.dailyWeb.types.utils.AuthUtils;
@@ -26,7 +27,7 @@ public class ItemController {
     private ItemEditService itemEditService;
 
     @PostMapping("/get")
-    public ResponseEntity<?> getItems(@Valid @RequestBody GetItemsRequest params) {
+    public ResponseEntity<ApiResponse<List<GetItemsResponse>>> getItems(@Valid @RequestBody GetItemsRequest params) {
         Long docsId = Long.valueOf(params.getDocsId());
         int type = params.getType();
 
@@ -45,45 +46,67 @@ public class ItemController {
                     response.setExpand(item.getExpand());
                     return response;
                 }).collect(Collectors.toList());
-        return ResponseEntity.ok(collect);
+        return ResponseEntity.ok(ApiResponse.success(collect));
     }
 
     @PostMapping("/insert")
-    public ResponseEntity<?> insertItem(@Valid @RequestBody InsertItemRequest request) {
+    public ResponseEntity<ApiResponse> insertItem(@Valid @RequestBody InsertItemRequest request) {
         InsertItemDto body = new InsertItemDto();
         body.setDocsId(Long.valueOf(request.getDocsId()));
         body.setType(Integer.valueOf(request.getType()));
         boolean ok = itemEditService.insertItem(body, AuthUtils.getLoginId());
-        return ResponseEntity.ok(Map.of("success", ok));
+
+        if (ok)
+        return ResponseEntity.ok(ApiResponse.success());
+        else {
+            return ResponseEntity.ok(ApiResponse.error());
+        }
     }
 
     @PostMapping("/update")
-    public ResponseEntity<?> updateItem(@Valid @RequestBody UpdateItemRequest request) {
+    public ResponseEntity<ApiResponse> updateItem(@Valid @RequestBody UpdateItemRequest request) {
         UpdateItemDto body = new UpdateItemDto();
         body.setIndex(Long.valueOf(request.getIndex()));
         body.setContent(request.getContent());
         boolean ok = itemEditService.updateItem(body);
-        return ResponseEntity.ok(Map.of("success", ok));
+
+        if (ok)
+            return ResponseEntity.ok(ApiResponse.success());
+        else {
+            return ResponseEntity.ok(ApiResponse.error());
+        }
     }
     @PostMapping("/delete")
-    public ResponseEntity<?> deleteItem(@RequestParam("index") Long index) {
+    public ResponseEntity<ApiResponse> deleteItem(@RequestParam("index") Long index) {
         boolean ok = itemEditService.deleteItem(index);
-        return ResponseEntity.ok(Map.of("success", ok));
+        if (ok)
+            return ResponseEntity.ok(ApiResponse.success());
+        else {
+            return ResponseEntity.ok(ApiResponse.error());
+        }
     }
 
     @PostMapping("/field/checklist/title")
-    public ResponseEntity<?> updateChecklist(@Valid @RequestBody UpdateCheckListRequest request) {
+    public ResponseEntity<ApiResponse> updateChecklist(@Valid @RequestBody UpdateCheckListRequest request) {
         UpdateCheckListDto body = new UpdateCheckListDto();
         body.setIndex(Long.valueOf(request.getIndex()));
         body.setTitle(request.getTitle());
         boolean ok = itemEditService.CheckList(body);
-        return ResponseEntity.ok(Map.of("success", ok));
+        if (ok)
+            return ResponseEntity.ok(ApiResponse.success());
+        else {
+            return ResponseEntity.ok(ApiResponse.error());
+        }
     }
 
     @PostMapping("field/checklist/finish")
-    public ResponseEntity<?> finishChecklist(@Valid @RequestBody FinishChecklistRequest request) {
+    public ResponseEntity<ApiResponse> finishChecklist(@Valid @RequestBody FinishChecklistRequest request) {
         Long id = Long.valueOf(request.getId());
         boolean ok = itemEditService.CheckListFinish(id);
-        return ResponseEntity.ok(Map.of("success", ok));
+        if (ok)
+            return ResponseEntity.ok(ApiResponse.success());
+        else {
+            return ResponseEntity.ok(ApiResponse.error());
+        }
     }
 }
