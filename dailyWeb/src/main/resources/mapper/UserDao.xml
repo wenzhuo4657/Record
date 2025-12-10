@@ -3,18 +3,19 @@
 <mapper namespace="cn.wenzhuo4657.dailyWeb.infrastructure.database.dao.UserDao">
 
     <resultMap type="cn.wenzhuo4657.dailyWeb.infrastructure.database.entity.User" id="UserMap">
-        <result property="id" column="id" jdbcType="INTEGER"/>
-        <result property="avatarUrl" column="avatar_url" jdbcType="VARCHAR"/>
-        <result property="name" column="name" jdbcType="VARCHAR"/>
+        <result property="id" column="id" jdbcType="BIGINT"/>
+        <result property="userId" column="user_id" jdbcType="BIGINT"/>
+        <result property="oauthUserid" column="oauth_userId" jdbcType="VARCHAR"/>
         <result property="oauthProvider" column="oauth_provider" jdbcType="VARCHAR"/>
-        <result property="oauthProviderUserId" column="oauth_provider_user_id" jdbcType="VARCHAR"/>
         <result property="createdAt" column="created_at" jdbcType="VARCHAR"/>
+        <result property="name" column="name" jdbcType="VARCHAR"/>
+        <result property="avatarUrl" column="avatar_url" jdbcType="VARCHAR"/>
     </resultMap>
 
     <!--查询单个-->
     <select id="queryById" resultMap="UserMap">
         select
-id, avatar_url, name, oauth_provider, oauth_provider_user_id, created_at
+id, user_id, oauth_userId, oauth_provider, created_at, name, avatar_url
         from user
         where id = #{id}
     </select>
@@ -28,76 +29,80 @@ id, avatar_url, name, oauth_provider, oauth_provider_user_id, created_at
             <if test="id != null">
                 and id = #{id}
             </if>
-            <if test="avatarUrl != null and avatarUrl != ''">
-                and avatar_url = #{avatarUrl}
+            <if test="userId != null">
+                and user_id = #{userId}
             </if>
-            <if test="name != null and name != ''">
-                and name = #{name}
+            <if test="oauthUserid != null and oauthUserid != ''">
+                and oauth_userId = #{oauthUserid}
             </if>
             <if test="oauthProvider != null and oauthProvider != ''">
                 and oauth_provider = #{oauthProvider}
             </if>
-            <if test="oauthProviderUserId != null and oauthProviderUserId != ''">
-                and oauth_provider_user_id = #{oauthProviderUserId}
-            </if>
             <if test="createdAt != null and createdAt != ''">
                 and created_at = #{createdAt}
+            </if>
+            <if test="name != null and name != ''">
+                and name = #{name}
+            </if>
+            <if test="avatarUrl != null and avatarUrl != ''">
+                and avatar_url = #{avatarUrl}
             </if>
         </where>
     </select>
     <select id="queryByOauthId" resultType="cn.wenzhuo4657.dailyWeb.infrastructure.database.entity.User">
-        select
-          id, avatar_url, name, oauth_provider, oauth_provider_user_id, created_at
-        from user
-        where oauth_provider = #{oauthProvider} and oauth_provider_user_id = #{oauthProviderUserId}
+        select * from user where oauth_userId = #{oauthProviderUserId} and oauth_provider = #{oauthProvider}
     </select>
 
     <!--新增所有列-->
     <insert id="insert" keyProperty="id" useGeneratedKeys="true">
-        insert into user(avatar_url, name, oauth_provider, oauth_provider_user_id, created_at)
-        values (#{avatarUrl}, #{name}, #{oauthProvider}, #{oauthProviderUserId}, #{createdAt})
+        insert into user(user_id, oauth_userId, oauth_provider, created_at, name, avatar_url)
+        values (#{userId}, #{oauthUserid}, #{oauthProvider}, #{createdAt}, #{name}, #{avatarUrl})
     </insert>
 
     <insert id="insertBatch" keyProperty="id" useGeneratedKeys="true">
-        insert into user(avatar_url, name, oauth_provider, oauth_provider_user_id, created_at)
+        insert into user(user_id, oauth_userId, oauth_provider, created_at, name, avatar_url)
         values
         <foreach collection="entities" item="entity" separator=",">
-        (#{entity.avatarUrl}, #{entity.name}, #{entity.oauthProvider}, #{entity.oauthProviderUserId}, #{entity.createdAt})
+        (#{entity.userId}, #{entity.oauthUserid}, #{entity.oauthProvider}, #{entity.createdAt}, #{entity.name}, #{entity.avatarUrl})
         </foreach>
     </insert>
 
     <insert id="insertOrUpdateBatch" keyProperty="id" useGeneratedKeys="true">
-        insert into user(id, avatar_url, name, oauth_provider, oauth_provider_user_id, created_at)
+        insert into user(user_id, oauth_userId, oauth_provider, created_at, name, avatar_url)
         values
         <foreach collection="entities" item="entity" separator=",">
-            (#{entity.id}, #{entity.avatarUrl}, #{entity.name}, #{entity.oauthProvider}, #{entity.oauthProviderUserId}, #{entity.createdAt})
+            (#{entity.userId}, #{entity.oauthUserid}, #{entity.oauthProvider}, #{entity.createdAt}, #{entity.name}, #{entity.avatarUrl})
         </foreach>
-        on conflict(id) do update set
-            avatar_url = excluded.avatar_url,
-            name = excluded.name,
-            oauth_provider = excluded.oauth_provider,
-            oauth_provider_user_id = excluded.oauth_provider_user_id,
-            created_at = excluded.created_at
+        on duplicate key update
+user_id = values(user_id),
+oauth_userId = values(oauth_userId),
+oauth_provider = values(oauth_provider),
+created_at = values(created_at),
+name = values(name),
+avatar_url = values(avatar_url)
     </insert>
 
     <!--通过主键修改数据-->
     <update id="update">
         update user
         <set>
-            <if test="avatarUrl != null and avatarUrl != ''">
-                avatar_url = #{avatarUrl},
+            <if test="userId != null">
+                user_id = #{userId},
             </if>
-            <if test="name != null and name != ''">
-                name = #{name},
+            <if test="oauthUserid != null and oauthUserid != ''">
+                oauth_userId = #{oauthUserid},
             </if>
             <if test="oauthProvider != null and oauthProvider != ''">
                 oauth_provider = #{oauthProvider},
             </if>
-            <if test="oauthProviderUserId != null and oauthProviderUserId != ''">
-                oauth_provider_user_id = #{oauthProviderUserId},
-            </if>
             <if test="createdAt != null and createdAt != ''">
                 created_at = #{createdAt},
+            </if>
+            <if test="name != null and name != ''">
+                name = #{name},
+            </if>
+            <if test="avatarUrl != null and avatarUrl != ''">
+                avatar_url = #{avatarUrl},
             </if>
         </set>
         where id = #{id}

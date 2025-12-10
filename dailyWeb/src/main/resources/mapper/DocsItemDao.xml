@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.wenzhuo4657.dailyWeb.infrastructure.database.dao.DocsItemDao">
+
+    <resultMap type="cn.wenzhuo4657.dailyWeb.infrastructure.database.entity.DocsItem" id="DocsItemMap">
+        <result property="id" column="id" jdbcType="BIGINT"/>
+        <result property="index" column="index" jdbcType="INTEGER"/>
+        <result property="docsId" column="docs_id" jdbcType="BIGINT"/>
+        <result property="itemContent" column="item_content" jdbcType="VARCHAR"/>
+        <result property="itemField" column="item_Field" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="DocsItemMap">
+        select
+            id, `index`, docs_id, item_content, item_Field
+        from docs_item
+        where id = #{id}
+    </select>
+
+
+    <!--统计总行数-->
+    <select id="count" resultType="java.lang.Long">
+        select count(1)
+        from docs_item
+        <where>
+            <if test="id != null">
+                and id = #{id}
+            </if>
+            <if test="index != null">
+                and index = #{index}
+            </if>
+            <if test="docsId != null">
+                and docs_id = #{docsId}
+            </if>
+            <if test="itemContent != null and itemContent != ''">
+                and item_content = #{itemContent}
+            </if>
+            <if test="itemField != null and itemField != ''">
+                and item_Field = #{itemField}
+            </if>
+        </where>
+    </select>
+    <select id="selectDocsItem" resultType="cn.wenzhuo4657.dailyWeb.infrastructure.database.entity.DocsItem">
+
+    </select>
+    <select id="queryByDocsId" resultType="cn.wenzhuo4657.dailyWeb.infrastructure.database.entity.DocsItem">
+        select *
+        from docs_item
+        where docs_id = #{docsId}
+    </select>
+    <select id="queryByIndex" resultType="cn.wenzhuo4657.dailyWeb.infrastructure.database.entity.DocsItem">
+        select *
+        from docs_item
+        where index = #{index}
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="id" useGeneratedKeys="true">
+        insert into docs_item(`index`, docs_id, item_content, item_Field)
+        values (#{index}, #{docsId}, #{itemContent}, #{itemField})
+    </insert>
+
+    <insert id="insertBatch" keyProperty="id" useGeneratedKeys="true">
+        insert into docs_item(`index`, docs_id, item_content, item_Field)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+        (#{entity.index}, #{entity.docsId}, #{entity.itemContent}, #{entity.itemField})
+        </foreach>
+    </insert>
+
+    <insert id="insertOrUpdateBatch" keyProperty="id" useGeneratedKeys="true">
+        insert into docs_item(`index`, docs_id, item_content, item_Field)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.index}, #{entity.docsId}, #{entity.itemContent}, #{entity.itemField})
+        </foreach>
+        on duplicate key update
+index = values(index),
+docs_id = values(docs_id),
+item_content = values(item_content),
+item_Field = values(item_Field)
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update docs_item
+        <set>
+            <if test="docsId != null">
+                docs_id = #{docsId},
+            </if>
+            <if test="itemContent != null and itemContent != ''">
+                item_content = #{itemContent},
+            </if>
+            <if test="itemField != null and itemField != ''">
+                item_Field = #{itemField},
+            </if>
+        </set>
+        where `index` = #{index}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete from docs_item where id = #{id}
+    </delete>
+    <delete id="delete">
+        delete from docs_item where `index` = #{index}
+    </delete>
+
+</mapper>
+

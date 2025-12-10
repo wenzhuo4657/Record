@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.wenzhuo4657.dailyWeb.infrastructure.database.dao.DocsDao">
+
+    <resultMap type="cn.wenzhuo4657.dailyWeb.infrastructure.database.entity.Docs" id="DocsMap">
+        <result property="id" column="id" jdbcType="BIGINT"/>
+        <result property="name" column="name" jdbcType="VARCHAR"/>
+        <result property="typeId" column="type_id" jdbcType="BIGINT"/>
+        <result property="createTime" column="create_time" jdbcType="VARCHAR"/>
+        <result property="updateTime" column="update_time" jdbcType="VARCHAR"/>
+        <result property="docsId" column="docs_id" jdbcType="BIGINT"/>
+        <result property="userId" column="user_id" jdbcType="BIGINT"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="DocsMap">
+        select
+id, name, type_id, create_time, update_time, docs_id, user_id
+        from docs
+        where id = #{id}
+    </select>
+
+
+    <!--统计总行数-->
+    <select id="count" resultType="java.lang.Long">
+        select count(1)
+        from docs
+        <where>
+            <if test="id != null">
+                and id = #{id}
+            </if>
+            <if test="name != null and name != ''">
+                and name = #{name}
+            </if>
+            <if test="typeId != null">
+                and type_id = #{typeId}
+            </if>
+            <if test="createTime != null and createTime != ''">
+                and create_time = #{createTime}
+            </if>
+            <if test="updateTime != null and updateTime != ''">
+                and update_time = #{updateTime}
+            </if>
+            <if test="docsId != null">
+                and docs_id = #{docsId}
+            </if>
+            <if test="userId != null">
+                and user_id = #{userId}
+            </if>
+        </where>
+    </select>
+    <select id="isPermissions"  resultType="java.lang.Boolean">
+        select count(1) == 1
+        from docs
+        where
+            user_id = #{userId}
+            and  docs_id = #{docsId}
+        
+    </select>
+    <select id="isExist" resultType="java.lang.Boolean">
+        select count(1) == 1
+        from docs
+        where  docs_id = #{docsId}
+
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="id" useGeneratedKeys="true">
+        insert into docs(name, type_id, create_time, update_time, docs_id, user_id)
+        values (#{name}, #{typeId}, #{createTime}, #{updateTime}, #{docsId}, #{userId})
+    </insert>
+
+    <insert id="insertBatch" keyProperty="id" useGeneratedKeys="true">
+        insert into docs(name, type_id, create_time, update_time, docs_id, user_id)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+        (#{entity.name}, #{entity.typeId}, #{entity.createTime}, #{entity.updateTime}, #{entity.docsId}, #{entity.userId})
+        </foreach>
+    </insert>
+
+    <insert id="insertOrUpdateBatch" keyProperty="id" useGeneratedKeys="true">
+        insert into docs(name, type_id, create_time, update_time, docs_id, user_id)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.name}, #{entity.typeId}, #{entity.createTime}, #{entity.updateTime}, #{entity.docsId}, #{entity.userId})
+        </foreach>
+        on duplicate key update
+name = values(name),
+type_id = values(type_id),
+create_time = values(create_time),
+update_time = values(update_time),
+docs_id = values(docs_id),
+user_id = values(user_id)
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update docs
+        <set>
+            <if test="name != null and name != ''">
+                name = #{name},
+            </if>
+            <if test="typeId != null">
+                type_id = #{typeId},
+            </if>
+            <if test="createTime != null and createTime != ''">
+                create_time = #{createTime},
+            </if>
+            <if test="updateTime != null and updateTime != ''">
+                update_time = #{updateTime},
+            </if>
+            <if test="docsId != null">
+                docs_id = #{docsId},
+            </if>
+            <if test="userId != null">
+                user_id = #{userId},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete from docs where id = #{id}
+    </delete>
+
+</mapper>
+

@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="cn.wenzhuo4657.dailyWeb.infrastructure.database.dao.ContentTypeDao">
-
-    <select id="getAll" resultType="cn.wenzhuo4657.dailyWeb.infrastructure.database.entity.ContentType">
-        select * from contentType
-    </select>
-</mapper>

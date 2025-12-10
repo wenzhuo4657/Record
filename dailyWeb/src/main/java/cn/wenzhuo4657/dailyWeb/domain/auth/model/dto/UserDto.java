@@ -1,7 +1,7 @@
 package cn.wenzhuo4657.dailyWeb.domain.auth.model.dto;
 
 public class UserDto {
-    private Integer id;
+    private Long id;
     private String username;
     private String avatar;
 
@@ -22,11 +22,11 @@ public class UserDto {
         this.avatar = avatar;
     }
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

@@ -13,44 +13,39 @@ public class InsertItemDto {
 
     @NotNull
     @Min(0)
-    private Integer contentNameId;
+    private Long docsId;
 
     @NotNull
-    @Min(0)
-    private Integer type;
-    private Date date; // 可选字段
+    private int type;
 
     public InsertItemDto() {
     }
 
-    public InsertItemDto(Integer contentNameId, Integer type, Date date) {
-        this.contentNameId = contentNameId;
+
+    public InsertItemDto(Long docsId, int type) {
+        this.docsId = docsId;
         this.type = type;
-        this.date = date;
     }
 
-    public Integer getContentNameId() {
-        return contentNameId;
+    public Long getDocsId() {
+        return docsId;
     }
 
-    public void setContentNameId(Integer contentNameId) {
-        this.contentNameId = contentNameId;
+    public void setContentNameId(Long docsId) {
+        this.docsId = docsId;
     }
 
-    public Integer getType() {
+    public void setDocsId(Long docsId) {
+        this.docsId = docsId;
+    }
+
+
+    public int getType() {
         return type;
     }
 
-    public void setType(Integer type) {
+    public void setType(int type) {
         this.type = type;
-    }
-
-    public Date getDate() {
-        return date;
-    }
-
-    public void setDate(Date date) {
-        this.date = date;
     }
 }
 

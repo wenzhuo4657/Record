@@ -6,46 +6,48 @@ import java.io.Serializable;
  * (User)实体类
  *
  * @author makejava
- * @since 2025-10-27 21:54:06
+ * @since 2025-11-10 13:41:15
  */
 public class User implements Serializable {
-    private static final long serialVersionUID = -61424034044724139L;
+    private static final long serialVersionUID = 202532437837927539L;
 
-    private Integer id;
+    private Long id;
 
-    private String avatarUrl;
+    private Long userId;
 
-    private String name;
+    private String oauthUserid;
 
     private String oauthProvider;
 
-    private String oauthProviderUserId;
-
     private String createdAt;
 
+    private String name;
 
-    public Integer getId() {
+    private String avatarUrl;
+
+
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
-    public String getAvatarUrl() {
-        return avatarUrl;
+    public Long getUserId() {
+        return userId;
     }
 
-    public void setAvatarUrl(String avatarUrl) {
-        this.avatarUrl = avatarUrl;
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
-    public String getName() {
-        return name;
+    public String getOauthUserid() {
+        return oauthUserid;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setOauthUserid(String oauthUserid) {
+        this.oauthUserid = oauthUserid;
     }
 
     public String getOauthProvider() {
@@ -56,20 +58,28 @@ public class User implements Serializable {
         this.oauthProvider = oauthProvider;
     }
 
-    public String getOauthProviderUserId() {
-        return oauthProviderUserId;
-    }
-
-    public void setOauthProviderUserId(String oauthProviderUserId) {
-        this.oauthProviderUserId = oauthProviderUserId;
-    }
-
     public String getCreatedAt() {
         return createdAt;
     }
 
     public void setCreatedAt(String createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getAvatarUrl() {
+        return avatarUrl;
+    }
+
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
     }
 
 }

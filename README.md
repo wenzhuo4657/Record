@@ -32,3 +32,7 @@ email:
     to: wenzhuo4657@gmail.com
     password: ${GMAIL_PASSWORD}
 ```
+# 数据库
+
+## er图
+![](https://cdn.wenzhuo4657.org/img/2025/11/6d314150affa21de2fe0f280fff366a7.png)

@@ -1,33 +1,28 @@
 package cn.wenzhuo4657.dailyWeb.domain.ItemEdit.repository;
 
-import cn.wenzhuo4657.dailyWeb.domain.ItemEdit.model.dto.ItemDto;
 import cn.wenzhuo4657.dailyWeb.domain.ItemEdit.model.dto.UpdateItemDto;
-import cn.wenzhuo4657.dailyWeb.infrastructure.database.entity.ContentItem;
-import cn.wenzhuo4657.dailyWeb.infrastructure.database.entity.ContentType;
+import cn.wenzhuo4657.dailyWeb.infrastructure.database.entity.DocsItem;
 
 import java.util.List;
+
 
 public interface IItemEditRepository {
 
 
-    List<ItemDto> getMd(Integer content_name_Id, Integer type);
+    List<DocsItem> getDocsItems(Long docs_Id);
 
 
-
-    boolean updateMd(UpdateItemDto itemDto, Integer type);
-
+    boolean addItem(DocsItem docs_Id);
 
 
-    void addItem(Integer content_name_Id, Integer type);
+    DocsItem selectDocsItem(Long id);
+
+    void updateField(Long id, String field);
 
 
-    ContentItem selectContentItem(Integer id);
+    boolean isPermissions(Long docsId, Long userId);
 
-    void updateField(Integer id, String field);
+    boolean updateItem(Long index, String content);
 
-
-    boolean queryContentName(Integer content_name_Id,Integer type,Integer userid);
-
-
-    int queryContentType(Integer id);
+    void deleteItem(Long index);
 }

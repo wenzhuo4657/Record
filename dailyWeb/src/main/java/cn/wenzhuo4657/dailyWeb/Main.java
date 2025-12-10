@@ -9,7 +9,6 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.web.servlet.ServletComponentScan;
 import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
@@ -30,6 +29,18 @@ public class Main  implements ApplicationRunner {
     private final static Logger log = org.slf4j.LoggerFactory.getLogger(Main.class);
 
 
+    /**
+     * todo 配置隔离
+     * 用户级别的配置
+     * 1，背景图片
+     *
+     * 系统级别的配置
+     * 1，备份邮箱
+     *
+     * 程序启动级别的配置
+     * 1， 日报程序后端地址
+     * 2， 通知器程序的后端地址
+     */
 
     public static void main(String[] args) {
         SpringApplication.run(Main.class, args);

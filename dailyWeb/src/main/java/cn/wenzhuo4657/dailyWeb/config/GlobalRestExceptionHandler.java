@@ -1,6 +1,11 @@
 package cn.wenzhuo4657.dailyWeb.config;
 
+import cn.dev33.satoken.exception.NotLoginException;
+import cn.wenzhuo4657.dailyWeb.tigger.http.dto.ApiResponse;
 import cn.wenzhuo4657.dailyWeb.types.Exception.AppException;
+import cn.wenzhuo4657.dailyWeb.types.Exception.ResponseCode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -10,8 +15,23 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
  */
 @RestControllerAdvice
 public class GlobalRestExceptionHandler {
+    private static final Logger log = LoggerFactory.getLogger(GlobalRestExceptionHandler.class);
+
     @ExceptionHandler(AppException.class)
-    public ResponseEntity handleAppException(AppException e) {
-        return ResponseEntity.status(e.getCode()).body(e.getInfo());
+    public ResponseEntity<ApiResponse> handleAppException(AppException e) {
+        log.warn("AppException occurred: {}", e.getMessage());
+        return ResponseEntity.ok(ApiResponse.error(e.getCode(), e.getMessage()));
+    }
+
+    @ExceptionHandler(NotLoginException.class)
+    public ResponseEntity<ApiResponse> handleNotLoginException(NotLoginException e) {
+        log.warn("NotLoginException occurred: {}", e.getMessage());
+        return ResponseEntity.badRequest().body(ApiResponse.error(ResponseCode.NOT_LOGIN.getCode(),ResponseCode.NOT_LOGIN.getInfo()));
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ApiResponse> handleException(Exception e) {
+        log.error("Exception occurred: {}", e.getMessage());
+        return ResponseEntity.internalServerError().body(ApiResponse.error(ResponseCode.programmingError.getCode(), ResponseCode.programmingError.getInfo()));
     }
 }

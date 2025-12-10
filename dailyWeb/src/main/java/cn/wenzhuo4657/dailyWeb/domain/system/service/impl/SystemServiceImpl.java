@@ -1,15 +1,25 @@
 package cn.wenzhuo4657.dailyWeb.domain.system.service.impl;
 
+import cn.wenzhuo4657.dailyWeb.domain.system.model.DataBaseVersionVo;
 import cn.wenzhuo4657.dailyWeb.domain.system.service.SystemService;
+import cn.wenzhuo4657.dailyWeb.infrastructure.database.dao.DatabaseversionDao;
+import cn.wenzhuo4657.dailyWeb.infrastructure.database.repository.SystemRepository;
+import cn.wenzhuo4657.dailyWeb.types.Exception.AppException;
+import cn.wenzhuo4657.dailyWeb.types.Exception.ResponseCode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.jdbc.datasource.init.ScriptUtils;
 import org.springframework.stereotype.Service;
 
 import javax.sql.DataSource;
 import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.concurrent.TimeUnit;
@@ -21,6 +31,10 @@ public class SystemServiceImpl implements SystemService {
 
     @Autowired
     private DataSource dataSource;
+    @Autowired
+    private SystemRepository systemRepository;
+
+
 
 
     ReentrantLock alock=new ReentrantLock(true);
@@ -29,48 +43,64 @@ public class SystemServiceImpl implements SystemService {
 
     @Override
     public void reset(File tempFile) {
+        String mainDatabaseVersion  = systemRepository.getDatabaseVersion();
+
+
 
         try {
+//            1，加锁，数据库操作必须是串行进行，且注意，该锁为可重入锁
             alock.tryLock(60, TimeUnit.SECONDS);
+            // 2，执行核心流程
+//            （1）获取当前数据库版本，导入数据库版本，（假定前者大于等于后者，如果后者大，则拒绝合并）
+//            （2）根据版本获取选择流程，若相同，直接覆盖合并，结束递归，若不相同，则进行临时数据版本升级操作
+//            （3） 版本升级结束，返回流程2
+            try (Connection conn =dataSource.getConnection();
+                 Statement stmt = conn.createStatement()) {
 
+                conn.setAutoCommit(false); // 开启事务
 
-
-            //  不能原子替换，进程锁定了当前db文件 :ATTACH DATABASE后合并数据，
-            try (Connection backendConn =dataSource.getConnection();
-                 Statement stmt = backendConn.createStatement()) {
-
-                backendConn.setAutoCommit(false); // 开启事务
-
-                // 使用 Statement 执行 ATTACH DATABASE
-                String attachSql = "ATTACH DATABASE '" + tempFile.getAbsolutePath() + "' AS tempDb;";
+                // 1，挂载数据库，获取数据库版本
+                String tempDatabaseName = "tempDb"; // 假设临时数据库名称为 tempDb
+                String attachSql = "ATTACH DATABASE '" + tempFile.getAbsolutePath() + "' AS " + tempDatabaseName + ";";
                 stmt.execute(attachSql);
 
-                // **合并 表数据**
-//            TODO sql脚本，以后数据库一定会变，所以之后要注意对不同版本的数据库进行兼容，对于库表版本进行标记，
-//            1，清除原表数据
-                String deleteSql = """
-                    DELETE FROM main.content_item;
-                    DELETE FROM main.content_name;
-                    DELETE FROM main.content_type;
-            """;
-                stmt.executeUpdate(deleteSql);
-//            2，添加新库数据
-                String insertSql = """
-                  
-                   INSERT INTO main.content_type (id, name, des)
-                   SELECT id, name, des FROM tempDb.content_type;
-                   
-                   INSERT INTO main.content_name (id, name, "type", create_time, update_time)
-                   SELECT id, name, "type", create_time, update_time FROM tempDb.content_name;
-                   
-                   INSERT INTO main.content_item (id, content_name_id, item_content, item_Field, date)
-                   SELECT id, content_name_id, item_content, item_Field, date FROM tempDb.content_item;
-                   """;
-                stmt.executeUpdate(insertSql);
+                String versionsql="SELECT version FROM "+tempDatabaseName+".databaseversion order by id desc limit 1;";
+                ResultSet rs=stmt.executeQuery(versionsql);
+                String tempDatabaseVersion = rs.getString("version");
 
-                backendConn.commit(); // 提交事务
 
-                stmt.execute("DETACH DATABASE tempDb;");
+//                2，导入数据库版本校验，如果不一致，则进行版本兼容操作
+
+                //                    2.1，判断是否可以进行版本兼容操作
+                DataBaseVersionVo main = DataBaseVersionVo.getEnumByVersion(mainDatabaseVersion);
+                DataBaseVersionVo temp = DataBaseVersionVo.getEnumByVersion(tempDatabaseVersion);
+                if (main.getCode()<temp.getCode()){
+                    return;
+                }else if (main.getCode()>temp.getCode()){
+//                    执行版本升级操作
+//                    todo 等待实现
+                    throw  new AppException(ResponseCode.programmingError);
+                }else {
+
+
+//                    清除原表数据
+                    String deleteSql=main.getDeleteSql();
+                    ByteArrayResource deleteResource = new ByteArrayResource(deleteSql.getBytes(StandardCharsets.UTF_8));
+                    ScriptUtils.executeSqlScript(conn, deleteResource);
+
+//                    填充新表数据
+                    String insertSql=main.getInsertSql();
+                    ByteArrayResource insertResource = new ByteArrayResource(insertSql.getBytes(StandardCharsets.UTF_8));
+                    ScriptUtils.executeSqlScript(conn, insertResource);
+                }
+                conn.commit(); // 提交事务
+                conn.close();
+                stmt.close();
+
+                // 重新创建Statement以避免锁定问题
+                try (Statement detachStmt = dataSource.getConnection().createStatement()) {
+                    detachStmt.execute("DETACH DATABASE " + tempDatabaseName + ";");
+                }
             } catch (Exception e) {
                 throw new RuntimeException("数据库导入失败", e);
             }finally {
@@ -87,6 +117,7 @@ public class SystemServiceImpl implements SystemService {
 
 
     }
+
 
     @Override
     public void export(Path tempBackup) throws SQLException {

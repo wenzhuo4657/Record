@@ -2,10 +2,10 @@ package cn.wenzhuo4657.dailyWeb.infrastructure.database.repository;
 
 import cn.wenzhuo4657.dailyWeb.domain.Types.model.dto.TypeDto;
 import cn.wenzhuo4657.dailyWeb.domain.Types.repository.ITypesRepository;
-import cn.wenzhuo4657.dailyWeb.infrastructure.database.dao.ContentTypeDao;
-import cn.wenzhuo4657.dailyWeb.infrastructure.database.dao.UserContentnameDao;
-import cn.wenzhuo4657.dailyWeb.infrastructure.database.entity.ContentName;
-import cn.wenzhuo4657.dailyWeb.infrastructure.database.entity.ContentType;
+import cn.wenzhuo4657.dailyWeb.infrastructure.database.dao.DocsTypeDao;
+import cn.wenzhuo4657.dailyWeb.infrastructure.database.dao.UserAuthDao;
+import cn.wenzhuo4657.dailyWeb.infrastructure.database.entity.Docs;
+import cn.wenzhuo4657.dailyWeb.infrastructure.database.entity.DocsType;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -21,41 +21,40 @@ public class TypesRepository implements ITypesRepository {
 
 
     @Autowired
-    private ContentTypeDao contentTypeDao;
+    private DocsTypeDao docsTypeDao;
     @Autowired
-    private UserContentnameDao userContentnameDao;
+    private UserAuthDao userAuthDao;
 
     @Override
     public List<TypeDto> getAll(){
-        List<ContentType> all = contentTypeDao.getAll();
+        List<DocsType> all = docsTypeDao.getAll();
         List<TypeDto> typeDtos = new ArrayList<>();
-        for (ContentType contentType : all){
+        for (DocsType docsType : all){
             TypeDto typeDto = new TypeDto();
-            typeDto.setId(contentType.getId());
-            typeDto.setName(contentType.getName());
+            typeDto.setId(docsType.getTypeId());
+            typeDto.setName(docsType.getName());
             typeDtos.add(typeDto);
         }
         return typeDtos;
     }
 
     @Override
-    public List<TypeDto> getAllByUserId(Integer userId) {
-        log.warn("暂时没有处理动态路由----");
+    public List<TypeDto> getAllByUserId(Long userId) {
 //        todo 这里需要调整为动态路由，根据用户身份来做权限控制
-        List<ContentType> all = contentTypeDao.getAll();
+        List<DocsType> all = docsTypeDao.getAll();
         List<TypeDto> typeDtos = new ArrayList<>();
-        for (ContentType contentType : all){
+        for (DocsType docsType : all){
             TypeDto typeDto = new TypeDto();
-            typeDto.setId(contentType.getId());
-            typeDto.setName(contentType.getName());
+            typeDto.setId(docsType.getTypeId());
+            typeDto.setName(docsType.getName());
             typeDtos.add(typeDto);
         }
         return typeDtos;
     }
 
     @Override
-    public List<ContentName> getContentNameIdById(Integer loginId, Integer typeId) {
-        List<ContentName> list = userContentnameDao.queryByloginIdAndtypeId(loginId, typeId);
+    public List<Docs> getDocsIdByTypeId(Long userId, Long typeId) {
+        List<Docs> list = userAuthDao.queryByUserIdAndtypeId(userId, typeId);
         return list;
     }
 }

@@ -6,6 +6,7 @@ import cn.wenzhuo4657.dailyWeb.domain.auth.model.dto.RegisterByOauthDto;
 import cn.wenzhuo4657.dailyWeb.domain.auth.model.dto.UserDto;
 import cn.wenzhuo4657.dailyWeb.domain.auth.repository.IAuthRepository;
 import cn.wenzhuo4657.dailyWeb.infrastructure.database.entity.User;
+import cn.wenzhuo4657.dailyWeb.types.utils.SnowflakeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,8 +27,9 @@ public  class UserService  implements IUserService {
             RegisterAggregate aggregate=new RegisterAggregate();
             User userDto=new User();
             userDto.setName(registerByOauthDto.getOauth_provider_username());
+            userDto.setUserId(SnowflakeUtils.getSnowflakeId());
             userDto.setAvatarUrl(registerByOauthDto.getOauth_provider_avatar());
-            userDto.setOauthProviderUserId(registerByOauthDto.getOauth_provider_user_id());
+            userDto.setOauthUserid(registerByOauthDto.getOauth_provider_user_id());
             userDto.setOauthProvider(registerByOauthDto.getOauth_provider());
             aggregate.setUser(userDto);
             userEntity=authRepository.initUser(aggregate);
@@ -36,7 +38,7 @@ public  class UserService  implements IUserService {
         UserDto dto=new UserDto();
         dto.setUsername(userEntity.getName());
         dto.setAvatar(userEntity.getAvatarUrl());
-        dto.setId(userEntity.getId());
+        dto.setId(userEntity.getUserId());
         return dto;
     }
 

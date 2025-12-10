@@ -6,10 +6,12 @@ import jakarta.validation.constraints.NotNull;
 
 public class ItemDto {
 
+    private  int id;
+
 
     @NotNull
     @Min(value = 0)
-    private Integer id;
+    private String index;
 
     @NotNull
     private String title;
@@ -21,19 +23,27 @@ public class ItemDto {
     public ItemDto() {
     }
 
-    public ItemDto(Integer id, String title, String content, String expand) {
-        this.id = id;
+    public ItemDto(String index, String title, String content, String expand) {
+        this.index = index;
         this.title = title;
         this.content = content;
         this.expand = expand;
     }
 
-    public Integer getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(int id) {
         this.id = id;
+    }
+
+    public String getIndex() {
+        return index;
+    }
+
+    public void setIndex(String index) {
+        this.index = index;
     }
 
     public String getTitle() {

@@ -9,9 +9,15 @@ package cn.wenzhuo4657.dailyWeb.types.Exception;
  * 5xx - 服务器错误
  */
 public enum ResponseCode {
-
-
+    SUCCESS(200, "操作成功"),
+    FAILED(400, "操作失败"),
+    RESOURCE_NOT_FOUND(404, "资源不存在"),
+    MISSING_CREDENTIALS(400,    "客户端请求参数错误、格式不正确、必填字段缺失等" ),
+    NOT_PERMISSIONS(403,"文档存在，但用户权限不足"),
+    programmingError(500,"未知错误" ),
+    NOT_LOGIN(401,"未登录、token无效，请重新登录" )//401不可重复，前端用于判断是否需要跳转登录页面
     ;
+
     private String info;
     private Integer code;
 

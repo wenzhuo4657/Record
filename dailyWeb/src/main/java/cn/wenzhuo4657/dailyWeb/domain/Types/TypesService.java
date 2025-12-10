@@ -1,10 +1,9 @@
 package cn.wenzhuo4657.dailyWeb.domain.Types;
 
-import cn.wenzhuo4657.dailyWeb.domain.Types.model.dto.ContentNameDto;
+import cn.wenzhuo4657.dailyWeb.domain.Types.model.dto.DocsDto;
 import cn.wenzhuo4657.dailyWeb.domain.Types.model.dto.TypeDto;
 import cn.wenzhuo4657.dailyWeb.domain.Types.repository.ITypesRepository;
-import cn.wenzhuo4657.dailyWeb.infrastructure.database.entity.ContentName;
-import cn.wenzhuo4657.dailyWeb.utils.SaTokenUtils;
+import cn.wenzhuo4657.dailyWeb.infrastructure.database.entity.Docs;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,22 +17,22 @@ public class TypesService  implements   ITypesService{
     private ITypesRepository typesRepository;
 
     @Override
-    public List<TypeDto> getAllTypes() {
+    public List<TypeDto> getAllTypes(Long userId) {
 
-        Integer loginId = SaTokenUtils.getLoginId();
-        return typesRepository.getAllByUserId(loginId);
+
+        return typesRepository.getAllByUserId(userId);
     }
 
+//    将所有long整数返回的数据都修改为string类型，以避免前端的精度损失
     @Override
-    public List<ContentNameDto> getContentNameIdById(Integer typeId) {
-        Integer loginId = SaTokenUtils.getLoginId();
-        List<ContentName> list = typesRepository.getContentNameIdById(loginId, typeId);
+    public List<DocsDto> getContentNameIdById(Long typeId, Long userId) {
+        List<Docs> list = typesRepository.getDocsIdByTypeId(userId, typeId);
         return list.stream()
                 .map(
 
                                 contentName -> {
-                                    ContentNameDto dto=new ContentNameDto();
-                                    dto.setId(contentName.getId());
+                                    DocsDto dto=new DocsDto();
+                                    dto.setId(contentName.getDocsId());
                                     dto.setName(contentName.getName());
                                     return dto;
                                 }

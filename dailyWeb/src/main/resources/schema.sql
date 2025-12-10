@@ -1,68 +1,51 @@
+-- docs definition
 
-CREATE TABLE IF NOT EXISTS "contentItem" (
-    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    content_name_id INTEGER NOT NULL,
-    item_content TEXT NOT NULL,
-    item_Field TEXT,
-    date TEXT NOT NULL );
+CREATE TABLE IF NOT EXISTS "docs" ( id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, name TEXT(10) NOT NULL, "type_id" INTEGER DEFAULT (0) NOT NULL, create_time TEXT NOT NULL, update_time TEXT NOT NULL , docs_id INTEGER NOT NULL, user_id INTEGER NOT NULL);
 
+-- docs_item definition
 
+CREATE TABLE IF NOT EXISTS docs_item (
+                                         id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT
+    , "index" INTEGER NOT NULL, docs_id INTEGER NOT NULL, item_content TEXT NOT NULL, item_Field TEXT NOT NULL);
 
-CREATE TABLE IF NOT EXISTS "contentName" (
-    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    name TEXT(10) NOT NULL,
-    "type" INTEGER DEFAULT (0) NOT NULL,
-    create_time TEXT NOT NULL,
-    update_time TEXT NOT NULL );
+CREATE INDEX IF NOT EXISTS docs_item_index_PK__IDX ON docs_item ("index",docs_id);
 
+-- docs_type definition
 
-CREATE TABLE IF NOT EXISTS "contentType" (
+CREATE TABLE IF NOT EXISTS "docs_type" (
     id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
-    des TEXT );
+    des TEXT ,
+    type_id INTEGER);
+
+CREATE INDEX IF NOT EXISTS docs_type_name_IDX ON docs_type (name);
+CREATE UNIQUE INDEX IF NOT EXISTS docs_type_type_id_IDX ON docs_type (type_id);
 
 
-CREATE TABLE IF NOT EXISTS dataVersion (
-    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-       tag TEXT NOT NULL,
-       Log TEXT);
-
+-- "user" definition
 
 CREATE TABLE IF NOT EXISTS "user" (
-                        id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-                        avatar_url TEXT NOT NULL,
-                        name TEXT NOT NULL,
-                        oauth_provider TEXT NOT NULL,
-                        oauth_provider_user_id TEXT NOT NULL,
-                        created_at TEXT NOT NULL
-);
+                                      id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+                                      user_id INTEGER NOT NULL,
+                                      oauth_userId TEXT NOT NULL,
+                                      oauth_provider TEXT NOT NULL
+    , created_at TEXT NOT NULL, name TEXT NOT NULL, avatar_url TEXT NOT NULL);
+
+CREATE INDEX IF NOT EXISTS user_oauth_userId_IDX ON "user" (oauth_userId,oauth_provider);
 
 
-CREATE TABLE IF NOT EXISTS user_contentName (
-                                  id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-                                  userId INTEGER NOT NULL,
-                                  contentNameId INTEGER NOT NULL,
-                                  "typeId" INTEGER NOT NULL
-);
+-- user_auth definition
 
-CREATE UNIQUE INDEX IF NOT EXISTS user_contentName_userId_IDX ON user_contentName (userId,"typeId");
+CREATE TABLE IF NOT EXISTS user_auth (
+                                         id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT
+    , user_id INTEGER, docs_type_id INTEGER);
 
-
-
-CREATE TABLE IF NOT EXISTS "user_selector" (
-                                 id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-                                 user_id INTEGER NOT NULL,
-                                 content_type_id INTEGER NOT NULL, deleted INTEGER DEFAULT (1) NOT NULL,
-                                 CONSTRAINT user_contentType_FK FOREIGN KEY (user_id) REFERENCES "user"(id) ON DELETE CASCADE,
-                                 CONSTRAINT user_contentType_FK_1 FOREIGN KEY (content_type_id) REFERENCES contentType(id) ON DELETE CASCADE
-);
+CREATE INDEX IF NOT EXISTS user_auth_user_id_IDX ON user_auth (user_id,docs_type_id);
 
 
 
+-- dataBaseVersion definition
 
-
-
-
-
-
-
+CREATE TABLE  IF NOT EXISTS "dataBaseVersion" (
+                                   id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT
+    , version TEXT NOT NULL, date TEXT NOT NULL, log TEXT);

@@ -8,35 +8,35 @@ public class QueryItemDto {
 
     @NotNull
     @Min(0)
-    private Integer contentNameId;
+    private Long docsId;
 
     @NotNull
-    @Min(0)
-    @Max(1)
-    private Integer type;
+    private int type;
 
 
     public QueryItemDto() {
     }
 
-    public QueryItemDto(Integer contentNameId, Integer type) {
-        this.contentNameId = contentNameId;
-        this.type = type;
+    public QueryItemDto(Long docsId, int type) {
+        this.docsId = docsId;
+        this.type=type;
+
     }
 
-    public Integer getContentNameId() {
-        return contentNameId;
+    public Long getDocsId() {
+        return docsId;
     }
 
-    public void setContentNameId(Integer contentNameId) {
-        this.contentNameId = contentNameId;
+    public void setDocsId(Long docsId) {
+        this.docsId = docsId;
     }
 
-    public Integer getType() {
+
+    public int getType() {
         return type;
     }
 
-    public void setType(Integer type) {
+    public void setType(int type) {
         this.type = type;
     }
 }

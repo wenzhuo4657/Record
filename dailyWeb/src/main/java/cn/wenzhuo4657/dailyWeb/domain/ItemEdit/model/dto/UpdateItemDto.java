@@ -9,31 +9,29 @@ public class UpdateItemDto {
 
     @NotNull
     @Min(value = 0)
-    private Integer id;
+    private Long index;
 
-    @NotNull
-    @Min(0)
-    private Integer type;
+
 
     @NotNull
     private String content;
 
 
-    public UpdateItemDto(Integer id, Integer type, String content) {
-        this.id = id;
-        this.type = type;
+    public UpdateItemDto(Long id, Integer type, String content) {
+        this.index = id;
+
         this.content = content;
     }
 
     public UpdateItemDto() {
     }
 
-    public Integer getId() {
-        return id;
+    public Long getIndex() {
+        return index;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
+    public void setIndex(Long index) {
+        this.index = index;
     }
 
     public String getContent() {
@@ -44,13 +42,7 @@ public class UpdateItemDto {
         this.content = content;
     }
 
-    public Integer getType() {
-        return type;
-    }
 
-    public void setType(Integer type) {
-        this.type = type;
-    }
 
 
 }
