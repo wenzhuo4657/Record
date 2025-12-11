@@ -86,7 +86,7 @@ mvn clean package  -DskipTests  # 跳过测试
 
 mkdir $home/beifen
 
-nohup java  -Ddir.beifen=$home/beifen -Dgmail.password=$password   -Dspring.profiles.active=prod -Ddomain.url=https://$domain -Dgithub.client-id=$clientId -Dgithub.client-secret=$secret -jar  target/dailyWeb-1.0-SNAPSHOT.jar  &
+nohup java  -Ddir.beifen=$home/beifen  -Demail.config.password=$password   -Dspring.profiles.active=prod -Ddomain.url=https://$domain -Dgithub.client-id=$clientId -Dgithub.client-secret=$secret  -Dnotifierbot.base-url=http://localhost:8089  -jar  target/dailyWeb-1.0-SNAPSHOT.jar  &
 
 echo "后端部署完成"
 
