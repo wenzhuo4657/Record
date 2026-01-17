@@ -74,7 +74,7 @@ public class ItemEditRepository implements IItemEditRepository {
     public void updateField(Long id, String field) {
         DocsItem item=new DocsItem();
         item.setIndex(id);
-        item.setItemContent(field);
+        item.setItemField(field);
         docsItemDao.update(item);
     }
 

@@ -28,7 +28,7 @@
                 and id = #{id}
             </if>
             <if test="index != null">
-                and index = #{index}
+                and `index` = #{index}
             </if>
             <if test="docsId != null">
                 and docs_id = #{docsId}
@@ -52,7 +52,7 @@
     <select id="queryByIndex" resultType="cn.wenzhuo4657.dailyWeb.infrastructure.database.entity.DocsItem">
         select *
         from docs_item
-        where index = #{index}
+        where `index` = #{index}
     </select>
 
     <!--新增所有列-->
@@ -76,7 +76,7 @@
             (#{entity.index}, #{entity.docsId}, #{entity.itemContent}, #{entity.itemField})
         </foreach>
         on duplicate key update
-index = values(index),
+`index` = values(`index`),
 docs_id = values(docs_id),
 item_content = values(item_content),
 item_Field = values(item_Field)

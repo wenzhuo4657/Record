@@ -138,7 +138,7 @@ public  class ItemEditService implements baseService,PlanService {
     }
 
     @Override
-    public boolean updateTaskStatus(Long taskId, String status) {
+    public boolean updateTask(Long taskId, String taskStatus, String score) {
         try {
             DocsItem task = mdRepository.selectDocsItem(taskId);
             if (task == null) {
@@ -146,80 +146,61 @@ public  class ItemEditService implements baseService,PlanService {
             }
 
             // 解析现有字段
-            Map<String, String> fieldMap = DocsItemFiled.toMap(task.getItemField());
+            Map<String, String> existingFieldMap = DocsItemFiled.toMap(task.getItemField());
 
             // 检查任务是否已被冻结（如果父任务已完成，子任务不能修改）
-            String currentStatus = fieldMap.get(DocsItemFiled.ItemFiled.task_status.getFiled());
+            String currentStatus = existingFieldMap.get(DocsItemFiled.ItemFiled.task_status.getFiled());
             if ("3".equals(currentStatus)) {
-                log.warn("任务已销毁，不能修改状态: taskId={}", taskId);
+                log.warn("任务已销毁，不能修改: taskId={}", taskId);
                 throw new AppException(ResponseCode.INVALID_STATUS);
             }
 
-            // 验证状态值
-            if (!status.equals("1") && !status.equals("2") && !status.equals("3")) {
-                log.warn("状态值无效: taskId={}, status={}", taskId, status);
-                throw new AppException(ResponseCode.INVALID_STATUS);
+            // 处理taskStatus字段
+            if (taskStatus != null) {
+                // 验证状态值
+                if (!taskStatus.equals("1") && !taskStatus.equals("2") && !taskStatus.equals("3")) {
+                    log.warn("状态值无效: taskId={}, taskStatus={}", taskId, taskStatus);
+                    throw new AppException(ResponseCode.INVALID_STATUS);
+                }
+                existingFieldMap.put(DocsItemFiled.ItemFiled.task_status.getFiled(), taskStatus);
             }
 
-            // 更新状态
-            fieldMap.put(DocsItemFiled.ItemFiled.task_status.getFiled(), status);
-            String newField = DocsItemFiled.toFiled(fieldMap);
+            // 处理score字段
+            if (score != null) {
+                // 验证评分范围（1-10）
+                try {
+                    int scoreValue = Integer.parseInt(score);
+                    if (scoreValue < 1 || scoreValue > 10) {
+                        log.warn("评分范围无效: taskId={}, score={}", taskId, score);
+                        throw new AppException(ResponseCode.INVALID_PARAM);
+                    }
+                } catch (NumberFormatException e) {
+                    log.warn("评分格式错误: taskId={}, score={}", taskId, score);
+                    throw new AppException(ResponseCode.INVALID_PARAM);
+                }
+                existingFieldMap.put(DocsItemFiled.ItemFiled.score.getFiled(), score);
+            }
+
+            // 更新字段
+            String newField = DocsItemFiled.toFiled(existingFieldMap);
             mdRepository.updateField(taskId, newField);
 
             // 如果任务状态为完成，将所有子任务设置为销毁状态
-            if ("1".equals(status)) {
+            String newStatus = existingFieldMap.get(DocsItemFiled.ItemFiled.task_status.getFiled());
+            if ("1".equals(newStatus)) {
                 freezeChildrenTasks(taskId);
             }
 
             return true;
         } catch (Exception e) {
-            log.error("更新任务状态失败", e);
-            return false;
-        }
-    }
-
-    @Override
-    public boolean updateTaskScore(Long taskId, String score) {
-        try {
-            DocsItem task = mdRepository.selectDocsItem(taskId);
-            if (task == null) {
-                throw new AppException(ResponseCode.RESOURCE_NOT_FOUND);
-            }
-
-            // 解析现有字段
-            Map<String, String> fieldMap = DocsItemFiled.toMap(task.getItemField());
-
-            // 验证评分范围（1-5或1-10）
-            try {
-                int scoreValue = Integer.parseInt(score);
-                if (scoreValue < 1 || scoreValue > 10) {
-                    log.warn("评分范围无效: taskId={}, score={}", taskId, score);
-                    throw new AppException(ResponseCode.INVALID_PARAM);
-                }
-            } catch (NumberFormatException e) {
-                log.warn("评分格式错误: taskId={}, score={}", taskId, score);
-                throw new AppException(ResponseCode.INVALID_PARAM);
-            }
-
-            // 更新评分
-            fieldMap.put(DocsItemFiled.ItemFiled.score.getFiled(), score);
-            String newField = DocsItemFiled.toFiled(fieldMap);
-            mdRepository.updateField(taskId, newField);
-            return true;
-        } catch (Exception e) {
-            log.error("更新任务评分失败", e);
+            log.error("更新任务失败", e);
             return false;
         }
     }
 
     @Override
     public boolean finishTask(Long taskId) {
-        try {
-            return updateTaskStatus(taskId, "1");
-        } catch (Exception e) {
-            log.error("完成任务失败", e);
-            return false;
-        }
+        return updateTask(taskId, "1", null);
     }
 
     /**

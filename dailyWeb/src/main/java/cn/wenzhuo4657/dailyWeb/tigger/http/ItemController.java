@@ -117,41 +117,13 @@ public class ItemController {
 
 
 
-    @PostMapping("/task/setParent")
-    /**
-     * 将这个接口改为初始化PlanI item的接口
-     */
-    public ResponseEntity<ApiResponse> setParentTask(@RequestParam("taskId") Long taskId,
-                                                      @RequestParam(value = "parentId", required = false) Long parentId) {
-        log.info("userID: {}    setParentTask request: taskId={}, parentId={}", AuthUtils.getLoginId(), taskId, parentId);
-        boolean ok = itemEditService.setParentTask(taskId, parentId);
-        log.info("userID: {}    setParentTask response: {}", AuthUtils.getLoginId(), ok);
-        if (ok)
-            return ResponseEntity.ok(ApiResponse.success());
-        else {
-            return ResponseEntity.ok(ApiResponse.error());
-        }
-    }
 
-    @PostMapping("/task/updateStatus")
-    public ResponseEntity<ApiResponse> updateTaskStatus(@RequestParam("taskId") Long taskId,
-                                                         @RequestParam("status") String status) {
-        log.info("userID: {}    updateTaskStatus request: taskId={}, status={}", AuthUtils.getLoginId(), taskId, status);
-        boolean ok = itemEditService.updateTaskStatus(taskId, status);
-        log.info("userID: {}    updateTaskStatus response: {}", AuthUtils.getLoginId(), ok);
-        if (ok)
-            return ResponseEntity.ok(ApiResponse.success());
-        else {
-            return ResponseEntity.ok(ApiResponse.error());
-        }
-    }
 
-    @PostMapping("/task/updateScore")
-    public ResponseEntity<ApiResponse> updateTaskScore(@RequestParam("taskId") Long taskId,
-                                                        @RequestParam("score") String score) {
-        log.info("userID: {}    updateTaskScore request: taskId={}, score={}", AuthUtils.getLoginId(), taskId, score);
-        boolean ok = itemEditService.updateTaskScore(taskId, score);
-        log.info("userID: {}    updateTaskScore response: {}", AuthUtils.getLoginId(), ok);
+    @PostMapping("/task/update")
+    public ResponseEntity<ApiResponse> updateTask(@Valid @RequestBody UpdateTaskRequest request) {
+        log.info("userID: {}    updateTask request: {}", AuthUtils.getLoginId(), request);
+        boolean ok = itemEditService.updateTask(request.getTaskId(), request.getTaskStatus(), request.getScore());
+        log.info("userID: {}    updateTask response: {}", AuthUtils.getLoginId(), ok);
         if (ok)
             return ResponseEntity.ok(ApiResponse.success());
         else {
