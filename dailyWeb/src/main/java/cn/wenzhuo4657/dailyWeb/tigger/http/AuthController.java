@@ -12,6 +12,7 @@ import cn.wenzhuo4657.dailyWeb.tigger.http.dto.res.UserResponse;
 import cn.wenzhuo4657.dailyWeb.types.utils.AuthUtils;
 import cn.wenzhuo4657.dailyWeb.types.utils.JwtUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import me.zhyd.oauth.model.AuthCallback;
 import me.zhyd.oauth.model.AuthResponse;
@@ -135,12 +136,13 @@ public class AuthController {
      * 退出登录
      */
     @PostMapping("/logout")
-    public ResponseEntity<Boolean> logout() {
+    public ResponseEntity<Boolean> logout(HttpServletRequest httpRequest) {
         try {
+            Long loginId = AuthUtils.getLoginId(httpRequest);
             // 执行登出逻辑
-            log.info("用户 {} 退出登录", AuthUtils.getLoginId());
+            log.info("用户 {} 退出登录", loginId);
             StpUtil.logout();
-            log.info("用户 {} 登出成功", AuthUtils.getLoginId());
+            log.info("用户 {} 登出成功", loginId);
             return ResponseEntity.ok(true);
         } catch (Exception e) {
             return ResponseEntity.ok(false);
@@ -152,9 +154,10 @@ public class AuthController {
      */
     @PostMapping("/refresh")
     @SaCheckLogin
-    public ResponseEntity<ApiResponse<String>> refresh() {
-        log.info("用户 {} 刷新access token", AuthUtils.getLoginId());
-        return ResponseEntity.ok(ApiResponse.success(JwtUtils.genToken(AuthUtils.getLoginId())));
+    public ResponseEntity<ApiResponse<String>> refresh(HttpServletRequest httpRequest) {
+        Long loginId = AuthUtils.getLoginId(httpRequest);
+        log.info("用户 {} 刷新access token", loginId);
+        return ResponseEntity.ok(ApiResponse.success(JwtUtils.genToken(loginId)));
 
     }
 }

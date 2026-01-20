@@ -1,10 +1,11 @@
 package cn.wenzhuo4657.dailyWeb.types.utils;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
-import io.jsonwebtoken.JwsHeader;
-import io.jsonwebtoken.Jwts;
+import cn.wenzhuo4657.dailyWeb.types.Exception.AppException;
+import cn.wenzhuo4657.dailyWeb.types.Exception.ResponseCode;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SecureDigestAlgorithm;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.crypto.SecretKey;
 import java.time.Instant;
@@ -20,7 +21,7 @@ public class JwtUtils {
     /**
      * 短token的过期时间(单位:秒)   一分钟
      */
-    public static final int ACCESS_TOKEN_EXPIRE = 60;
+    public static final int ACCESS_TOKEN_EXPIRE = 10;
 
     /**
      * 长token的过期时间(单位:秒)   七天
@@ -50,6 +51,7 @@ public class JwtUtils {
      * jwt主题
      */
     private final static String SUBJECT = "Peripherals";
+    private static final Logger log = LoggerFactory.getLogger(JwtUtils.class);
 
     /*
     这些是一组预定义的声明，它们 不是强制性的，而是推荐的 ，以 提供一组有用的、可互操作的声明 。
@@ -114,7 +116,13 @@ public class JwtUtils {
      * @return true表示token已过期或无效，false表示token有效
      */
     public static boolean isExpired(String token) {
+        try {
             return parseClaim(token).getPayload().getExpiration().before(new Date());
+        }catch (ExpiredJwtException e){
+            log.info("token已过期或无效", e);
+            return true;
+        }
+
 
     }
 
