@@ -116,13 +116,8 @@ public class JwtUtils {
      * @return true表示token已过期或无效，false表示token有效
      */
     public static boolean isExpired(String token) {
-        try {
-            return parseClaim(token).getPayload().getExpiration().before(new Date());
-        }catch (ExpiredJwtException e){
-            log.info("token已过期或无效", e);
-            return true;
-        }
 
+        return parseClaim(token).getPayload().getExpiration().before(new Date());
 
     }
 

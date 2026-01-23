@@ -36,4 +36,13 @@ public interface PlanService {
      * @return 是否成功
      */
     boolean finishTask(Long taskId);
+
+
+    /**
+     * 关联基本日报
+     *
+     * 关联逻辑：
+     * 在规划类型当中添加一个字段关联基本文档的id，并前端按钮处设置跳转按钮
+     */
+    boolean  connectionBase(Long taskId, Long userID);
 }

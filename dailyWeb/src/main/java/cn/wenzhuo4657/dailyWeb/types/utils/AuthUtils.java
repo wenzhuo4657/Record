@@ -2,6 +2,8 @@ package cn.wenzhuo4657.dailyWeb.types.utils;
 
 import cn.dev33.satoken.stp.StpUtil;
 import cn.wenzhuo4657.dailyWeb.domain.auth.model.dto.UserDto;
+import cn.wenzhuo4657.dailyWeb.types.Exception.AppException;
+import cn.wenzhuo4657.dailyWeb.types.Exception.ResponseCode;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -11,22 +13,32 @@ import jakarta.servlet.http.HttpServletRequest;
  */
 public class AuthUtils {
 
+
     /**
      * 获取登录用户的id
      * @param httpRequest HTTP请求对象
      * @return 用户ID
-     * todo 这里必须要么存在access_token，要么存在refresh_token，否则异常就会报错500，这不合理
      */
     public static Long getLoginId(HttpServletRequest httpRequest){
 
-        String accessToken = httpRequest.getHeader("access_token").replace("Bearer ", "").trim();
+        try {
+            try {
+                String accessToken = httpRequest.getHeader("access_token").replace("Bearer ", "").trim();
+                Claims claims = JwtUtils.parsePayload(accessToken);
+                return  claims.get("username", Long.class);
+            }catch (Exception e){
+                return Long.valueOf(StpUtil.getLoginId().toString());
+            }
 
-        if (accessToken == null || accessToken.isEmpty()|| JwtUtils.isExpired(accessToken)) {
-            // 如果没有access_token，回退到Sa-Token
-            return Long.valueOf(StpUtil.getLoginId().toString());
+        }catch (Exception e){
+            throw  new AppException(ResponseCode.NOT_LOGIN,e.getMessage());
         }
-        Claims claims = JwtUtils.parsePayload(accessToken);
-        return  claims.get("username", Long.class);
+
+
+
+
+
+
     }
 
     /**

@@ -66,7 +66,7 @@ public class TypesRepository implements ITypesRepository {
     }
 
     @Override
-    public boolean addDocs(Long typeId, Long userId, String docsName) {
+    public Long addDocs(Long typeId, Long userId, String docsName) {
         try {
             Docs docs = new Docs();
             docs.setName(docsName);
@@ -78,12 +78,12 @@ public class TypesRepository implements ITypesRepository {
             int insert = docsDao.insert(docs);
             if (insert != 1) {
                 log.warn("添加文档发生超预期内容");
-                return false;
+                return null;
             }
-            return true;
+            return docs.getDocsId();
         }catch (Exception e){
             log.warn("添加文档发生异常",e);
-            return false;
+            return null;
         }
 
     }

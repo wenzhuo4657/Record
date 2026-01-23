@@ -17,6 +17,10 @@ public class AppException extends RuntimeException{
         this.code = responseCode.getCode();
         this.info = responseCode.getInfo();
     }
+    public AppException(ResponseCode responseCode, String info){
+        this.code = responseCode.getCode();
+        this.info = responseCode.getInfo() + info;
+    }
 
 
     public Integer getCode() {

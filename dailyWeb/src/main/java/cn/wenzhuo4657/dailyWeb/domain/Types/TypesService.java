@@ -41,7 +41,8 @@ public class TypesService  implements   ITypesService{
 
     @Override
     public boolean addDocs(Long typeId, Long userId,String docsName) {
-       return typesRepository.addDocs(typeId,userId,docsName);
+        Long l = typesRepository.addDocs(typeId, userId, docsName);
+        return l != null;
 
     }
 

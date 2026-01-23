@@ -150,4 +150,17 @@ public class ItemController {
             return ResponseEntity.ok(ApiResponse.error());
         }
     }
+
+    @PostMapping("/task/connectionBase")
+    public ResponseEntity<ApiResponse> connectionBase(@RequestParam("taskId") Long taskId, HttpServletRequest httpRequest) {
+        Long loginId = AuthUtils.getLoginId(httpRequest);
+        log.info("userID: {}    connectionBase request: taskId={}", loginId, taskId);
+        boolean ok = itemEditService.connectionBase(taskId, loginId);
+        log.info("userID: {}    connectionBase response: {}", loginId, ok);
+        if (ok)
+            return ResponseEntity.ok(ApiResponse.success());
+        else {
+            return ResponseEntity.ok(ApiResponse.error());
+        }
+    }
 }

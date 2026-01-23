@@ -6,7 +6,10 @@ import cn.wenzhuo4657.dailyWeb.domain.ItemEdit.model.vo.DocsItemFiled;
 import cn.wenzhuo4657.dailyWeb.domain.ItemEdit.model.vo.DocsItemType;
 import cn.wenzhuo4657.dailyWeb.domain.ItemEdit.repository.IItemEditRepository;
 import cn.wenzhuo4657.dailyWeb.domain.ItemEdit.strategy.TypeStrategy;
+import cn.wenzhuo4657.dailyWeb.domain.Types.ITypesService;
+import cn.wenzhuo4657.dailyWeb.domain.Types.repository.ITypesRepository;
 import cn.wenzhuo4657.dailyWeb.infrastructure.database.entity.DocsItem;
+import cn.wenzhuo4657.dailyWeb.infrastructure.database.entity.DocsType;
 import cn.wenzhuo4657.dailyWeb.types.Exception.AppException;
 import cn.wenzhuo4657.dailyWeb.types.Exception.ResponseCode;
 import cn.wenzhuo4657.dailyWeb.types.utils.SnowflakeUtils;
@@ -18,6 +21,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 默认文档行为实现
@@ -33,6 +37,10 @@ public  class ItemEditService implements baseService,PlanService {
 
     @Autowired
     private TypeStrategy strategy;
+
+
+    @Autowired
+    private ITypesRepository typesRepository;
 
 
 
@@ -223,5 +231,51 @@ public  class ItemEditService implements baseService,PlanService {
             }
         }
     }
+    private final ConcurrentHashMap<Long, Object> lockMap = new ConcurrentHashMap<>();
 
+    @Override
+    public boolean connectionBase(Long taskId,Long userId) {
+
+        Object lock = lockMap.computeIfAbsent(taskId, k -> new Object());
+
+        synchronized (lock){
+            DocsItem task = mdRepository.selectDocsItem(taskId);
+            if (task == null){
+                throw new AppException(ResponseCode.MISSING_CREDENTIALS);
+            }
+            Map<String, String> fieldMap;
+            try {
+                fieldMap = DocsItemFiled.toMap(task.getItemField());
+                boolean b = fieldMap.containsKey(DocsItemFiled.ItemFiled.connection.getFiled());
+                if (b){
+                    return true;
+                }
+
+            }catch (ClassNotFoundException e){
+                throw new AppException(ResponseCode.programmingError,e.getMessage());
+            }
+
+//        1,创建新的基本文档，
+            Long newDocsId = typesRepository.addDocs(Long.valueOf(DocsItemType.ItemType.dailyBase.getCode()), userId, "关联plan:"+fieldMap.get(DocsItemFiled.ItemFiled.title.getFiled()));
+
+            if (newDocsId == null) {
+                throw new AppException(ResponseCode.programmingError);
+            }
+
+//        2,关联
+            try {
+                Map<String, String> map = DocsItemFiled.toMap(task.getItemField());
+                map.put(DocsItemFiled.ItemFiled.connection.getFiled(), String.valueOf(newDocsId));
+                String filed = DocsItemFiled.toFiled(map);
+                task.setItemField(filed);
+                mdRepository.updateField(taskId, filed);
+            } catch (ClassNotFoundException e) {
+                throw new AppException(ResponseCode.programmingError,e.getMessage());
+            }
+            return true;
+        }
+
+
+
+    }
 }

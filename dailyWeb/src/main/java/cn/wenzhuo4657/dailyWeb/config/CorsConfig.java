@@ -9,6 +9,8 @@ import cn.wenzhuo4657.dailyWeb.types.Exception.ResponseCode;
 import cn.wenzhuo4657.dailyWeb.types.utils.JwtUtils;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -17,6 +19,8 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 public class CorsConfig implements WebMvcConfigurer {
+
+    private static final Logger log = LoggerFactory.getLogger(CorsConfig.class);
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
@@ -48,28 +52,26 @@ public class CorsConfig implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(new SaInterceptor(handler -> {
                     // 直接检查请求方法，如果是OPTIONS就放行
-                    try {
-                        // 使用SaHolder获取请求信息
-                        if (handler.getClass().getSimpleName().contains("PreFlight")) {
-                            return; // OPTIONS预检请求直接放行
-                        }
-                        // 其他请求检查access token
-                        String accessToken = SaHolder.getRequest().getHeader("ACCESS_TOKEN").replace("Bearer ", "").trim();;
-                        if (accessToken == null || accessToken.isEmpty()) {
-                            throw new AppException(ResponseCode.ACCESS_TOKEN_INVALID);
-                        }
-                        boolean expired = JwtUtils.isExpired(accessToken);
-                        if (expired){
-                            throw new AppException(ResponseCode.ACCESS_TOKEN_INVALID);
-                        }
-                    } catch (Exception e) {
-                        // 如果获取请求方法失败，也尝试从异常信息判断
-                        if (e.getMessage() != null && e.getMessage().contains("上下文尚未初始化")) {
-                            // 如果是上下文问题，且可能是OPTIONS请求，放行
-                            return;
-                        }
-                        throw e;
-                    }
+
+            try {
+                // 使用SaHolder获取请求信息
+                if (handler.getClass().getSimpleName().contains("PreFlight")) {
+                    return; // OPTIONS预检请求直接放行
+                }
+                // 其他请求检查access token
+                String accessToken = SaHolder.getRequest().getHeader("ACCESS_TOKEN").replace("Bearer ", "").trim();;
+                if (accessToken == null || accessToken.isEmpty()) {
+                    throw new AppException(ResponseCode.ACCESS_TOKEN_INVALID);
+                }
+                boolean expired = JwtUtils.isExpired(accessToken);
+                if (expired){
+                    throw new AppException(ResponseCode.ACCESS_TOKEN_INVALID);
+                }
+            }catch (Exception e)
+            {
+                throw new AppException(ResponseCode.ACCESS_TOKEN_INVALID,e.getMessage());
+            }
+
                 }))
                 .addPathPatterns("/**")
                 .excludePathPatterns(
