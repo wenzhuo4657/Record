@@ -19,9 +19,9 @@ import java.util.UUID;
  */
 public class JwtUtils {
     /**
-     * 短token的过期时间(单位:秒)   一分钟
+     * 短token的过期时间(单位:秒)   五分钟
      */
-    public static final int ACCESS_TOKEN_EXPIRE = 10;
+    public static final int ACCESS_TOKEN_EXPIRE = 60*5;
 
     /**
      * 长token的过期时间(单位:秒)   七天

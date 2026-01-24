@@ -26,12 +26,12 @@ public   class   DocsItemType{
 
 
         public  enum  ItemType{
-            dailyBase("dailyBase", Daily_Base_Field,0),
-            Plan_I("Plan_I", Plan_I_Field,1),
-            StickyNote("StickyNote",StickyNote_Field,2)
+            dailyBase("dailyBase", Daily_Base_Field,0l),
+            Plan_I("Plan_I", Plan_I_Field,1l),
+            StickyNote("StickyNote",StickyNote_Field,2l)
             ;
 
-            ItemType(String typeName, DocsItemFiled.ItemFiled[] filed,int code) {
+            ItemType(String typeName, DocsItemFiled.ItemFiled[] filed,Long code) {
                 this.typeName = typeName;
                 this.filed = filed;
                 this.code=code;
@@ -40,9 +40,9 @@ public   class   DocsItemType{
             private String typeName;
 
             private DocsItemFiled.ItemFiled[] filed;
-            private int code;
+            private Long code;
 
-            public static ItemType valueOfByCode(int type) throws ClassNotFoundException {
+            public static ItemType valueOfByCode(long type) throws ClassNotFoundException {
                 for (ItemType item : ItemType.values()) {
                     if (item.getCode() == type) {
                         return item;
@@ -51,11 +51,11 @@ public   class   DocsItemType{
                 throw new ClassNotFoundException("No enum constant " + type);
             }
 
-            public int getCode() {
+            public Long getCode() {
                 return code;
             }
 
-            public void setCode(int code) {
+            public void setCode(Long code) {
                 this.code = code;
             }
 

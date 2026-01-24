@@ -5,6 +5,7 @@ import cn.wenzhuo4657.dailyWeb.domain.ItemEdit.model.dto.*;
 import cn.wenzhuo4657.dailyWeb.tigger.http.dto.ApiResponse;
 import cn.wenzhuo4657.dailyWeb.tigger.http.dto.req.*;
 import cn.wenzhuo4657.dailyWeb.tigger.http.dto.res.GetItemsResponse;
+import cn.wenzhuo4657.dailyWeb.tigger.http.dto.res.PreViewResponse;
 import cn.wenzhuo4657.dailyWeb.types.utils.AuthUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -64,7 +65,7 @@ public class ItemController {
         log.info("userID: {}    insertItem request:{} ", loginId, request);
         InsertItemDto body = new InsertItemDto();
         body.setDocsId(Long.valueOf(request.getDocsId()));
-        body.setType(Integer.valueOf(request.getType()));
+        body.setType(Long.valueOf(request.getType()));
         boolean ok = itemEditService.insertItem(body, loginId);
 
         log.info("userID: {}    insertItem response:{} ", loginId, ok);
@@ -162,5 +163,17 @@ public class ItemController {
         else {
             return ResponseEntity.ok(ApiResponse.error());
         }
+    }
+
+    @GetMapping("/today")
+    public ResponseEntity<ApiResponse<PreViewResponse>> queryUserByToday(HttpServletRequest httpRequest) {
+        Long loginId = AuthUtils.getLoginId(httpRequest);
+        log.info("userID: {}    queryUserByToday request", loginId);
+        PreViewDto result = itemEditService.queryUserByToday(loginId);
+        log.info("userID: {}    queryUserByToday response: baseItemCount={}, planItemCount={}",
+                loginId, result.getBaseItem().size(), result.getPlanItem().size());
+        PreViewResponse response=new PreViewResponse(result.getBaseItem(),result.getPlanItem());
+
+        return ResponseEntity.ok(ApiResponse.success(response));
     }
 }

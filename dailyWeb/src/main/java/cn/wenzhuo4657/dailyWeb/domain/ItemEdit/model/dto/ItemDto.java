@@ -69,5 +69,16 @@ public class ItemDto {
     public void setExpand(String expand) {
         this.expand = expand;
     }
+
+    @Override
+    public String toString() {
+        return "ItemDto{" +
+                "id=" + id +
+                ", index='" + index + '\'' +
+                ", title='" + title + '\'' +
+                ", content='" + content + '\'' +
+                ", expand='" + expand + '\'' +
+                '}';
+    }
 }
 

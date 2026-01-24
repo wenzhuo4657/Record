@@ -49,7 +49,7 @@ public class TypeController {
                         dto->{
 
 //                            这个类型不用展示，在其他地方直接使用
-                            if (dto.getId().intValue()==DocsItemType.ItemType.StickyNote.getCode()){
+                            if (dto.getId().equals(DocsItemType.ItemType.StickyNote.getCode())){
                                 return false;
                             }
                             return  true;

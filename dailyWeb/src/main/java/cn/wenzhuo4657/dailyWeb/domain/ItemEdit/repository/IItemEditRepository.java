@@ -1,7 +1,9 @@
 package cn.wenzhuo4657.dailyWeb.domain.ItemEdit.repository;
 
 import cn.wenzhuo4657.dailyWeb.domain.ItemEdit.model.dto.UpdateItemDto;
+import cn.wenzhuo4657.dailyWeb.infrastructure.database.entity.Docs;
 import cn.wenzhuo4657.dailyWeb.infrastructure.database.entity.DocsItem;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -39,4 +41,13 @@ public interface IItemEditRepository {
      * @return 顶层任务列表
      */
     List<DocsItem> getTopLevelTasks(Long docsId);
+
+    /**
+     * 根据文档ID列表批量查询所有项
+     * @param docsIds 文档ID列表
+     * @return 所有文档项
+     */
+    List<DocsItem> getDocsItemsByDocsIds(@Param("docsIds") List<Long> docsIds);
+
+    Docs getDocs(Long docsId);
 }

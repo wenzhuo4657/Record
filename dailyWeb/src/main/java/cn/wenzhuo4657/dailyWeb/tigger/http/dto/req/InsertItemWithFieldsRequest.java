@@ -15,7 +15,7 @@ public class InsertItemWithFieldsRequest {
 
     @NotNull
     @Min(value = 0)
-    private Integer type;
+    private long type;
 
     /**
      * 动态字段映射
@@ -27,7 +27,7 @@ public class InsertItemWithFieldsRequest {
     public InsertItemWithFieldsRequest() {
     }
 
-    public InsertItemWithFieldsRequest(String docsId, Integer type, Map<String, String> fields) {
+    public InsertItemWithFieldsRequest(String docsId, long type, Map<String, String> fields) {
         this.docsId = docsId;
         this.type = type;
         this.fields = fields;
@@ -41,7 +41,8 @@ public class InsertItemWithFieldsRequest {
         this.docsId = docsId;
     }
 
-    public Integer getType() {
+
+    public long getType() {
         return type;
     }
 

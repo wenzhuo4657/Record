@@ -8,6 +8,7 @@ import cn.wenzhuo4657.dailyWeb.domain.ItemEdit.repository.IItemEditRepository;
 import cn.wenzhuo4657.dailyWeb.domain.ItemEdit.strategy.TypeStrategy;
 import cn.wenzhuo4657.dailyWeb.domain.Types.ITypesService;
 import cn.wenzhuo4657.dailyWeb.domain.Types.repository.ITypesRepository;
+import cn.wenzhuo4657.dailyWeb.infrastructure.database.entity.Docs;
 import cn.wenzhuo4657.dailyWeb.infrastructure.database.entity.DocsItem;
 import cn.wenzhuo4657.dailyWeb.infrastructure.database.entity.DocsType;
 import cn.wenzhuo4657.dailyWeb.types.Exception.AppException;
@@ -256,7 +257,8 @@ public  class ItemEditService implements baseService,PlanService {
             }
 
 //        1,创建新的基本文档，
-            Long newDocsId = typesRepository.addDocs(Long.valueOf(DocsItemType.ItemType.dailyBase.getCode()), userId, "关联plan:"+fieldMap.get(DocsItemFiled.ItemFiled.title.getFiled()));
+//            todo 基本文档和plan文档的关联有问题， 无法从基本文档找到plan文档，原因是docs类型没有属性，只有ite当中才有属性
+            Long newDocsId = typesRepository.addDocs(Long.valueOf(DocsItemType.ItemType.dailyBase.getCode()), userId, fieldMap.get(DocsItemFiled.ItemFiled.title.getFiled()));
 
             if (newDocsId == null) {
                 throw new AppException(ResponseCode.programmingError);
@@ -277,5 +279,131 @@ public  class ItemEditService implements baseService,PlanService {
 
 
 
+    }
+
+    @Override
+    public PreViewDto queryUserByToday(Long userId) {
+        // 1. 获取今日日期字符串
+        String today = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        log.debug("查询用户今日日报, userId={}, today={}", userId, today);
+
+        // 2. 获取并处理基本日报 (dailyBase, code=0)
+        List<Docs> baseDocs = typesRepository.getDocsIdByTypeId(userId, DocsItemType.ItemType.dailyBase.getCode());
+        List<Long> baseDocIds = baseDocs.stream().map(Docs::getDocsId).toList();
+        List<DocsItem> baseItems = mdRepository.getDocsItemsByDocsIds(baseDocIds);
+        List<ItemDto> baseDtos = filterTodayBaseItems(baseItems, today);
+
+        // 3. 获取并处理计划任务 (Plan_I, code=1)
+        List<Docs> planDocs = typesRepository.getDocsIdByTypeId(userId, DocsItemType.ItemType.Plan_I.getCode());
+        List<Long> planDocIds = planDocs.stream().map(Docs::getDocsId).toList();
+        List<DocsItem> planItems = mdRepository.getDocsItemsByDocsIds(planDocIds);
+        List<ItemDto> planDtos = filterValidPlanItems(planItems, today);
+
+        log.debug("用户今日日报查询完成, baseItemCount={}, planItemCount={}", baseDtos.size(), planDtos.size());
+        return new PreViewDto(baseDtos, planDtos);
+    }
+
+    /**
+     * 过滤当日的基本日报项
+     * @param items 原始文档项列表
+     * @param today 今日日期 (yyyy-MM-dd)
+     * @return 当日的日报项DTO列表
+     */
+    private List<ItemDto> filterTodayBaseItems(List<DocsItem> items, String today) {
+        return items.stream()
+                .filter(item -> {
+                    try {
+                        Map<String, String> fieldMap = DocsItemFiled.toMap(item.getItemField());
+                        String data = fieldMap.get(DocsItemFiled.ItemFiled.data.getFiled());
+                        return today.equals(data);
+                    } catch (ClassNotFoundException e) {
+                        log.warn("解析文档项字段失败, index={}", item.getIndex(), e);
+                        return false;
+                    }
+                })
+                .map(item -> {
+                    try {
+                        ItemDto itemDto = strategy.apply(DocsItemType.ItemType.dailyBase.getCode(), List.of(item)).get(0);
+                        itemDto.setIndex(String.valueOf(item.getDocsId()));// 这里使用docsId,而非itemId
+                        Docs docs=mdRepository.getDocs(item.getDocsId());
+                        itemDto.setTitle(docs.getName());
+                        return itemDto;
+                    } catch (ClassNotFoundException e) {
+                        log.error("转换基本日报项失败", e);
+                        return null;
+                    }
+                })
+                .filter(Objects::nonNull)
+                .sorted(Comparator.comparing(ItemDto::getIndex))
+                .toList();
+    }
+
+    /**
+     * 过滤有效期内的计划任务
+     * @param items 原始文档项列表
+     * @param today 今日日期 (yyyy-MM-dd)
+     * @return 有效期内的计划任务DTO列表
+     */
+    private List<ItemDto> filterValidPlanItems(List<DocsItem> items, String today) {
+        LocalDateTime todayDate = LocalDateTime.parse(today + "T00:00:00");
+
+        return items.stream()
+                .filter(item -> {
+                    try {
+                        Map<String, String> fieldMap = DocsItemFiled.toMap(item.getItemField());
+
+                        // 过滤状态：只保留待做状态 (task_status=2)
+                        String taskStatus = fieldMap.get(DocsItemFiled.ItemFiled.task_status.getFiled());
+                        if (!"2".equals(taskStatus)) {
+                            return false;
+                        }
+
+                        // 过滤有效期
+                        String dataStart = fieldMap.get(DocsItemFiled.ItemFiled.data_start.getFiled());
+                        String dataEnd = fieldMap.get(DocsItemFiled.ItemFiled.data_end.getFiled());
+
+                        // data_start 不能为空
+                        if (dataStart == null || "null".equalsIgnoreCase(dataStart)) {
+                            return false;
+                        }
+
+                        LocalDateTime startDate = LocalDateTime.parse(dataStart + "T00:00:00");
+
+                        // 今日 >= 开始日期
+                        if (todayDate.isBefore(startDate)) {
+                            return false;
+                        }
+
+                        // 今日 <= 结束日期 (如果设置了结束日期)
+                        if (dataEnd != null && !"null".equalsIgnoreCase(dataEnd)) {
+                            LocalDateTime endDate = LocalDateTime.parse(dataEnd + "T00:00:00");
+                            return !todayDate.isAfter(endDate);
+                        }
+
+                        // 没有设置结束日期，表示永久有效
+                        return true;
+
+                    } catch (ClassNotFoundException | java.time.DateTimeException e) {
+                        log.warn("解析计划任务字段失败, index={}", item.getIndex(), e);
+                        return false;
+                    }
+                })
+                .map(item -> {
+                    try {
+                        return strategy.apply(DocsItemType.ItemType.Plan_I.getCode(), List.of(item)).get(0);
+                    } catch (ClassNotFoundException e) {
+                        log.error("转换计划任务项失败", e);
+                        return null;
+                    }
+                })
+                .filter(Objects::nonNull)
+                .sorted(Comparator.comparing(ItemDto::getIndex))
+                .toList();
+    }
+
+    @Override
+    public boolean tailAdd(Long index, String content) {
+
+        return false;
     }
 }

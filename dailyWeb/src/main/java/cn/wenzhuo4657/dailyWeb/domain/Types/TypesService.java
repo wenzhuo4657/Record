@@ -48,6 +48,7 @@ public class TypesService  implements   ITypesService{
 
     @Override
     public boolean deleteDocs(Long docsId, Long userId) {
+        typesRepository.deleteAllItemByDocsId(docsId);
         return typesRepository.deleteDocs(docsId,userId);
     }
 }

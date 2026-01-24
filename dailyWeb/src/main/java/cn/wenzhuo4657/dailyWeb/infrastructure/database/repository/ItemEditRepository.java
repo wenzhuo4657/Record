@@ -4,6 +4,7 @@ import cn.wenzhuo4657.dailyWeb.domain.ItemEdit.model.dto.UpdateItemDto;
 import cn.wenzhuo4657.dailyWeb.domain.ItemEdit.repository.IItemEditRepository;
 import cn.wenzhuo4657.dailyWeb.infrastructure.database.dao.DocsDao;
 import cn.wenzhuo4657.dailyWeb.infrastructure.database.dao.DocsItemDao;
+import cn.wenzhuo4657.dailyWeb.infrastructure.database.entity.Docs;
 import cn.wenzhuo4657.dailyWeb.infrastructure.database.entity.DocsItem;
 import cn.wenzhuo4657.dailyWeb.types.Exception.AppException;
 import cn.wenzhuo4657.dailyWeb.types.Exception.ResponseCode;
@@ -97,5 +98,18 @@ public class ItemEditRepository implements IItemEditRepository {
                     return field == null || !field.contains("parent_id:");
                 })
                 .toList();
+    }
+
+    @Override
+    public List<DocsItem> getDocsItemsByDocsIds(List<Long> docsIds) {
+        if (docsIds == null || docsIds.isEmpty()) {
+            return java.util.Collections.emptyList();
+        }
+        return docsItemDao.queryByDocsIds(docsIds);
+    }
+
+    @Override
+    public Docs getDocs(Long docsId) {
+        return docsDao.queryByDocsId(docsId);
     }
 }
