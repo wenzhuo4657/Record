@@ -1,7 +1,8 @@
 package cn.wenzhuo4657.dailyWeb.domain.agent.graph.nodeAction;
 
+import cn.wenzhuo4657.dailyWeb.domain.agent.graph.Constant;
+import cn.wenzhuo4657.dailyWeb.domain.agent.graph.ReactAgent.AnalyzeLogsAgent;
 import com.alibaba.cloud.ai.graph.OverAllState;
-import com.alibaba.cloud.ai.graph.StateGraph;
 import com.alibaba.cloud.ai.graph.action.NodeAction;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -12,7 +13,14 @@ import java.util.Map;
 public   class  AnalyzeLogsNode implements NodeAction {
     private static final Logger log = LoggerFactory.getLogger(AnalyzeLogsNode.class);
 
+
+
     private static final String notText="忽略";
+
+    private  AnalyzeLogsAgent agent;
+    public  AnalyzeLogsNode(AnalyzeLogsAgent agent){
+        this.agent=agent;
+    }
         @Override
         public Map<String, Object> apply(OverAllState state) throws Exception {
             String message = state.value("message")
@@ -27,17 +35,18 @@ public   class  AnalyzeLogsNode implements NodeAction {
             String content = analyzeLogs(message,userId);
             log.info("分析结果：{},userId:{}", content,userId);
 
+
+//            节点走向判断
             if (content.equals(notText)|| StringUtils.isBlank(content)){
                 return Map.of();
             }else {
-                return Map.of("content", content,"next_node", "notify");
+                return Map.of("content", content,"next_node", Constant.getNOTIFY_NODE_NAME());
             }
 
         }
 
     private String analyzeLogs(String message,Long userId) {
 //            todo 封装agent执行生成逻辑
-//        todo 组装图
 //        todo 图是否支持并发？
 
         /**

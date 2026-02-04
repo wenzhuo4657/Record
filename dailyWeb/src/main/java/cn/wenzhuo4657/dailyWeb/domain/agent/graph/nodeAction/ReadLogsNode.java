@@ -2,6 +2,7 @@ package cn.wenzhuo4657.dailyWeb.domain.agent.graph.nodeAction;
 
 import cn.wenzhuo4657.dailyWeb.domain.ItemEdit.ItemEditService;
 import cn.wenzhuo4657.dailyWeb.domain.ItemEdit.model.dto.PreViewDto;
+import cn.wenzhuo4657.dailyWeb.domain.agent.graph.Constant;
 import cn.wenzhuo4657.dailyWeb.domain.agent.mcp.dto.TodayDataRes;
 import com.alibaba.cloud.ai.graph.OverAllState;
 import com.alibaba.cloud.ai.graph.action.NodeAction;
@@ -37,6 +38,13 @@ public   class  ReadLogsNode implements NodeAction {
         }
         PreViewDto preViewDto = itemEditService.queryUserByToday(userId);
         TodayDataRes res=new TodayDataRes(preViewDto.getBaseItem(),preViewDto.getPlanItem());
-        return Map.of("message",res);
+
+
+
+//        节点走向判断
+        if (res.getBaseItem().isEmpty()&&res.getPlanItem().isEmpty()){
+            return Map.of();
+        }
+        return Map.of("message",res,"next_node", Constant.getANALYZE_LOGS_AGENT_NAME());
     }
     }
