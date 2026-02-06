@@ -7,6 +7,8 @@ import cn.wenzhuo4657.dailyWeb.domain.auth.model.dto.UserDto;
 import cn.wenzhuo4657.dailyWeb.domain.auth.repository.IAuthRepository;
 import cn.wenzhuo4657.dailyWeb.infrastructure.database.entity.User;
 import cn.wenzhuo4657.dailyWeb.types.utils.SnowflakeUtils;
+import org.redisson.api.RScoredSortedSet;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +18,9 @@ public  class UserService  implements IUserService {
 
     @Autowired
     private IAuthRepository authRepository;
+
+    @Autowired
+    private RedissonClient redissonClient;
 
     @Override
     public UserDto registerByOauth(RegisterByOauthDto registerByOauthDto) {
@@ -42,5 +47,12 @@ public  class UserService  implements IUserService {
         return dto;
     }
 
+    @Override
+    public void refreshUserHeartbeat(long userId) {
+        RScoredSortedSet<Long> set =
+                redissonClient.getScoredSortedSet("online:users");
 
+        set.add(System.currentTimeMillis(), userId);
+
+    }
 }

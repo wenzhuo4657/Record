@@ -160,4 +160,10 @@ public class AuthController {
         return ResponseEntity.ok(ApiResponse.success(JwtUtils.genToken(loginId)));
 
     }
+    @PostMapping("/heartbeat")
+    public void heartbeat(HttpServletRequest httpRequest) {
+        Long loginId = AuthUtils.getLoginId(httpRequest);
+        userService.refreshUserHeartbeat(loginId);
+    }
+
 }

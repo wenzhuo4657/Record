@@ -13,4 +13,11 @@ public  interface IUserService {
      * 如果已存在，则直接返回相应的用户信息
      */
     public UserDto registerByOauth(RegisterByOauthDto registerByOauthDto);
+
+
+    /**
+     * 刷新用户心跳，内部使用redis的zet数据结构维护一组用户：最后登录时间
+     */
+    public void refreshUserHeartbeat(long userId);
+
 }
