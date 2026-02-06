@@ -4,9 +4,11 @@ import cn.wenzhuo4657.dailyWeb.domain.agent.graph.Constant;
 import cn.wenzhuo4657.dailyWeb.domain.agent.graph.ReactAgent.AnalyzeLogsAgent;
 import com.alibaba.cloud.ai.graph.OverAllState;
 import com.alibaba.cloud.ai.graph.action.NodeAction;
+import com.alibaba.cloud.ai.graph.agent.ReactAgent;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.ai.chat.messages.AssistantMessage;
 
 import java.util.Map;
 
@@ -40,34 +42,20 @@ public   class  AnalyzeLogsNode implements NodeAction {
             if (content.equals(notText)|| StringUtils.isBlank(content)){
                 return Map.of();
             }else {
-                return Map.of("content", content,"next_node", Constant.getNOTIFY_NODE_NAME());
+                return Map.of("content", content,"next_node", Constant.NOTIFY_NODE_NAME);
             }
 
         }
 
     private String analyzeLogs(String message,Long userId) {
-//            todo 封装agent执行生成逻辑
-//        todo 图是否支持并发？
 
-        /**
-         * 目前的做法不支持长期记忆，也不会进行长期分析
-         * 正常来说，应该是能否对话控制，也就是能够支持用户单位的记忆
-         *
-         * agent需求，
-         * 1，上下文
-         *  用户单位激活上下文，自动裁剪
-         * 2，装配
-         * agent的状态是以用户为单位的，而不是全局统一的
-         *
-         *
-         * 理想需求，
-         * 用户可以通过对话调整图的某种参数，可以干涉分析日志的节点，例如agent的system pormpt
-         *
-         *
-         *
-         */
-
-
-        return null;
+        ReactAgent reactAgent = agent.getAgent();
+        try {
+            AssistantMessage call = reactAgent.call(message);
+            return call.getText();
+        }catch (Exception e){
+         log.error("分析日志失败：{}",e.getMessage());
+         return "";
+        }
     }
 }

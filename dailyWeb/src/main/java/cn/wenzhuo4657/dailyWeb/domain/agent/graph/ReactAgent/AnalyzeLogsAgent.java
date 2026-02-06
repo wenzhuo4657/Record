@@ -12,36 +12,46 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 public class AnalyzeLogsAgent {
 
-    @Autowired
     private ChatModel chatModel;
 
 
-    /**
-     * 每一次图的执行都应当是全新的，但是允许用户插入自己的提示词，也就是说，以追加的形式进行
-     * 但是为了保证并发，仍然需要穿件多个客户端实例
-     *
-     *
-     *
-     * 1，并发： 支持多个用户同时执行图，但是为了避免oom，需要组织类线程池进行，例如10个线程排队执行
-     * 2，独立：每一次执行都是互不干涉的，图并不需要上下文，但是允许用户插入自己的解析要求
-     *
-     * 对外暴露的应该只有一个方法，即excute(message,userPrompt),
-     *
-     *
-     * 并发安全由图保证，此处舍弃组件特性，作为图的一部分组装起来
-     *
-     *
-     *
-     *
-     *
-     */
-    String originalPrompt = "你是一个日报分析助手，对于用户的任意对话，";
+    @Autowired
+    public AnalyzeLogsAgent(ChatModel chatModel) {
+        this.chatModel = chatModel;
+        this.agent=getInstance();
+    }
+
+    String originalPrompt = """
+            你是一个日报分析助手，负责分析用户的今日日报数据并生成简洁的提醒通知。
+
+            ## 输入格式
+            你将收到用户的今日日报数据，包含：
+            - baseItem: 今日已完成的基础事项
+            - planItem: 今日计划事项
+
+            ## 输出要求
+            1. 风格：简洁、友好的建议风格
+            2. 长度：严格控制在300字以内
+            3. 内容：
+               - 如果用户有未完成的计划项，温和提醒
+               - 如果用户已完成较多事项，给予正向鼓励
+               - 如果内容较少或无实质内容，返回"忽略"
+            4. 语言：中文
+            5. 格式：直接输出通知文本，无需任何标题或额外说明
+
+            ## 示例
+            输入: baseItem=[完成代码审查], planItem=[完成API开发, 编写单元测试]
+            输出: 你今天已经完成了代码审查，做得不错！还有2个计划项待完成：API开发和单元测试。加油，继续保持！
+
+            输入: baseItem=[], planItem=[]
+            输出: 忽略
+            """;
 
 
 
+    private  final ReactAgent agent;
 
-
-    public ReactAgent getInstance() {
+    private ReactAgent getInstance() {
         ReactAgent agent = ReactAgent.builder()
                 .name("日报助手")
                 .systemPrompt(originalPrompt)
@@ -51,9 +61,7 @@ public class AnalyzeLogsAgent {
         return agent;
     }
 
-
-
-
-
-
+    public ReactAgent getAgent() {
+        return agent;
+    }
 }

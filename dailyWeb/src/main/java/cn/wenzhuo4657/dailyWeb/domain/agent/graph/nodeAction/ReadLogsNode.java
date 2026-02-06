@@ -45,6 +45,6 @@ public   class  ReadLogsNode implements NodeAction {
         if (res.getBaseItem().isEmpty()&&res.getPlanItem().isEmpty()){
             return Map.of();
         }
-        return Map.of("message",res,"next_node", Constant.getANALYZE_LOGS_AGENT_NAME());
+        return Map.of("message",res.toString(),"next_node", Constant.ANALYZE_LOGS_AGENT_NAME);
     }
     }
