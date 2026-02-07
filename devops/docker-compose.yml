@@ -21,39 +21,6 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
-
-  # Notifier服务 - 通知机器人服务
-  notifier:
-    image: notifier:1.0-SNAPSHOT
-    container_name: notifier
-    ports:
-      - "8082:8089"
-    environment:
-      - SERVER_PORT=8089
-      - SPRING_PROFILES_ACTIVE=cache
-      # Redis配置
-      - CACHE_ENABLED=true
-      - CACHE_ACTIVE_TYPE=redis
-      - HOST1=cache
-      - CACHE_REDIS_PORT=6379
-    networks:
-      - app-network
-    depends_on:
-      cache:
-        condition: service_healthy
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD-SHELL", "wget --quiet --tries=1 --spider http://localhost:8089/ || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
-
   # DailyWeb主服务
   dailyweb:
     image: dailyweb:1.0-SNAPSHOT
@@ -65,10 +32,14 @@ services:
       - DIR_BEIFEN=/app/data/beifen
       - SPRING_PROFILES_ACTIVE=prod
       - NOTIFIERBOT_BASE_URL=http://notifier:8089
-      - DOMAIN_URL=${DOMAIN_URL:-https://localhost:8081}
+      - DOMAIN_URL=${DOMAIN_URL:https://localhost:8081}
       - GITHUB_CLIENT_ID=${GITHUB_CLIENT_ID}
       - GITHUB_CLIENT_SECRET=${GITHUB_CLIENT_SECRET}
-      - GMAIL_PASSWORD=${GMAIL_PASSWORD:-}
+      - GMAIL_PASSWORD=${GMAIL_PASSWORD:}
+      - ai.enable=true
+      - AI_DASHSCOPE_API_KEY=${AI_DASHSCOPE_API_KEY}
+      - tgBot=${TG_BOT}
+      - chatId=${TG_CHAT_ID}
     volumes:
       # SQLite数据库持久化
       - dailyweb-data:/app/data

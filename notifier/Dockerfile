@@ -17,7 +17,7 @@ RUN apt-get update && apt-get install -y wget && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 
 # 复制 jar 文件
-COPY --from=builder /app/target/app-1.0-SNAPSHOT.jar app.jar
+COPY --from=builder /notifier/target/app-1.0-SNAPSHOT.jar app.jar
 
 # 暴露端口
 EXPOSE 8089
