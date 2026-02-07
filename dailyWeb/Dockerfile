@@ -20,7 +20,7 @@ WORKDIR /app
 RUN mkdir -p /app/data/beifen /app/logs && chmod -R 755 /app
 
 # 复制 jar 文件
-COPY --from=builder /dailyWeb/target/dailyWeb-1.0-SNAPSHOT.jar app.jar
+COPY --from=builder /dailyWeb/target/dailyWeb-2.0-beta.jar app.jar
 
 # 暴露端口
 EXPOSE 8081
