@@ -61,7 +61,7 @@ public class CorsConfig implements WebMvcConfigurer {
                     return; // OPTIONS预检请求直接放行
                 }
                 // 其他请求检查access token
-                String token = SaHolder.getRequest().getHeader("ACCESS_TOKEN");
+                String token = SaHolder.getRequest().getHeader("ACCESS-TOKEN");
                 log.info("token:{}",token);
                 if (StringUtils.isBlank(token)){
                     log.error("token:{}",token);

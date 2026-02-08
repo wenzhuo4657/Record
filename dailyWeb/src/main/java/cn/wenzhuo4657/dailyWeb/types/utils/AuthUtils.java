@@ -26,7 +26,7 @@ public class AuthUtils {
 
         try {
             try {
-                String accessToken = httpRequest.getHeader("access_token").replace("Bearer ", "").trim();
+                String accessToken = httpRequest.getHeader("access-token").replace("Bearer ", "").trim();
                 Claims claims = JwtUtils.parsePayload(accessToken);
                 return  claims.get("username", Long.class);
             }catch (Exception e){
