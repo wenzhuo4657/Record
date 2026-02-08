@@ -19,7 +19,7 @@ import java.util.*;
 /**
  * 打印http请求和响应的header, 不包含实际数据，
  */
-//@Component
+@Component
 public class HeaderLoggingFilter extends OncePerRequestFilter {
 
     private static final Logger log = LoggerFactory.getLogger(HeaderLoggingFilter.class);
@@ -35,6 +35,9 @@ public class HeaderLoggingFilter extends OncePerRequestFilter {
         ContentCachingRequestWrapper req = new ContentCachingRequestWrapper(request);
         ContentCachingResponseWrapper res = new ContentCachingResponseWrapper(response);
 
+//        TODO 这里没有打印mdc日志
+//        todo nginx传递token失败
+//        todo 挂在目录整理
         long start = System.currentTimeMillis();
         try {
             filterChain.doFilter(req, res);

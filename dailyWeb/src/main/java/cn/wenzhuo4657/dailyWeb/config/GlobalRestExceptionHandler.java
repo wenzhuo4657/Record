@@ -18,12 +18,15 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class GlobalRestExceptionHandler {
     private static final Logger log = LoggerFactory.getLogger(GlobalRestExceptionHandler.class);
 
+
+//    todo 当oauth登录时无法请求github时，后端没有专门的处理！
+
     @ExceptionHandler(AppException.class)
     public ResponseEntity<ApiResponse> handleAppException(AppException e) {
         // 确保当前线程有traceId
         ThreadMdcUtils.setTraceIdIfAbsent();
         log.warn("AppException occurred: {}", e.getMessage(), e);
-        return ResponseEntity.ok(ApiResponse.error(e.getCode(), e.getMessage()));
+        return ResponseEntity.ok().body(ApiResponse.error(e.getCode(), e.getMessage()));
     }
 
     @ExceptionHandler(NotLoginException.class)
@@ -31,8 +34,9 @@ public class GlobalRestExceptionHandler {
         // 确保当前线程有traceId
         ThreadMdcUtils.setTraceIdIfAbsent();
         log.warn("NotLoginException occurred: {}", e.getMessage(), e);
-        return ResponseEntity.badRequest().body(ApiResponse.error(ResponseCode.NOT_LOGIN.getCode(),ResponseCode.NOT_LOGIN.getInfo()));
+        return ResponseEntity.ok().body(ApiResponse.error(ResponseCode.NOT_LOGIN.getCode(),ResponseCode.NOT_LOGIN.getInfo()));
     }
+
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse> handleException(Exception e) {
@@ -41,4 +45,6 @@ public class GlobalRestExceptionHandler {
         log.error("Exception occurred: {}", e.getMessage(), e);
         return ResponseEntity.internalServerError().body(ApiResponse.error(ResponseCode.programmingError.getCode(), ResponseCode.programmingError.getInfo()));
     }
+
+
 }

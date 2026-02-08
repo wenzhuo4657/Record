@@ -1,0 +1,78 @@
+services:
+  # Redis缓存服务 - 用于通知器缓存
+  cache:
+    image: redis:6.2.21-alpine
+    container_name: some-redis
+    ports:
+      - "6379:6379"
+    command: redis-server --bind 0.0.0.0 --protected-mode no
+    networks:
+      - app-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+  # DailyWeb主服务
+  dailyweb:
+    image: jacka7732/fluxflow:2.0-beta
+    container_name: dailyweb
+    ports:
+      - "8081:8081"
+    environment:
+      SERVER_PORT: 8081
+      DIR_BEIFEN: /app/data/beifen
+      SPRING_PROFILES_ACTIVE: prod,ai
+      NOTIFIERBOT_BASE_URL: http://notifier:8089
+      DOMAIN_URL: https://test.wenzhuo4657.org
+      GITHUB_CLIENT_ID: xxx
+      GITHUB_CLIENT_SECRET: xx
+      GMAIL_PASSWORD: xxx
+      AI_ENABLE: true
+      AI_DASHSCOPE_API_KEY: xxx
+      tgBot: xxx
+      chatId: xxx
+      HOST1: cache
+    volumes:
+      # SQLite数据库持久化
+      - dailyweb-data:/app/data
+      # 日志持久化(可选)
+      - dailyweb-logs:/app/logs
+    networks:
+      - app-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget --quiet --tries=1 --spider http://localhost:8081/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  dailyweb-data:
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: "${PWD}/data"
+  dailyweb-logs:
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: "${PWD}/logs"
+
+networks:
+  app-network:
+    driver: bridge

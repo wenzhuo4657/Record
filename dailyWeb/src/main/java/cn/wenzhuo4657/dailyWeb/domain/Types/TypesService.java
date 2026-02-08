@@ -21,7 +21,6 @@ public class TypesService  implements   ITypesService{
         return typesRepository.getAllByUserId(userId);
     }
 
-//    将所有long整数返回的数据都修改为string类型，以避免前端的精度损失
     @Override
     public List<DocsDto> getContentNameIdById(Long typeId, Long userId) {
         List<Docs> list = typesRepository.getDocsIdByTypeId(userId, typeId);
@@ -37,5 +36,18 @@ public class TypesService  implements   ITypesService{
 
                 )
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public boolean addDocs(Long typeId, Long userId,String docsName) {
+        Long l = typesRepository.addDocs(typeId, userId, docsName);
+        return l != null;
+
+    }
+
+    @Override
+    public boolean deleteDocs(Long docsId, Long userId) {
+        typesRepository.deleteAllItemByDocsId(docsId);
+        return typesRepository.deleteDocs(docsId,userId);
     }
 }
