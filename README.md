@@ -1,87 +1,51 @@
-# FluxFlow-back
 
-前端地址：  https://github.com/wenzhuo4657/FluxFlow-Front
+<h1 align="center">FluxFlow</h1>
 
+<p align="center">
+  <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="license">
+  <img src="https://img.shields.io/badge/Docker-Supported-blue.svg" alt="docker">
+  <img src="https://img.shields.io/badge/AI-Analysis-green.svg" alt="ai">
+  <img src="https://img.shields.io/github/stars/wenzhuo4657/FluxFlow?style=flat-square" alt="stars">
+</p>
 
-# 介绍
+<p align="center">
+  <strong>🚀 极简、智能、安全的 AI 驱动型日报记录与分发系统</strong>
+</p>
 
-这是一个用于记录日报的后端程序，使用Spring Boot和MyBatis作为框架。它支持GitHub OAuth登录，并且可以通过邮件每日定时备份
+---
 
-![](https://cdn.wenzhuo4657.org/img/2025/12/d31f1295c8020ea40099b3ad93797d81.png)
+## ✨ 核心特性
 
-# 使用
+* 🔗 **GitHub 鉴权** — 绑定 GitHub 账号，告别繁琐的密码管理，实现一键秒速登录。
+* 🤖 **AI 深度复盘** — 智能助手自动分析日报，通过 **Telegram / Email** 实时推送核心洞察。
+* 📝 **原生 Markdown** — 像写代码一样记录生活，支持标准语法，排版优雅，所见即所得。
+* 📦 **数据轻量迁移** — 基于 SQLite 架构，支持一键导出与定时邮件备份，确保数据主权。
+* ⚡ **即刻开箱** — 全容器化封装，支持 Docker Compose 一键启动，无需复杂环境配置。
+* 🛡️ **金融级防护** — 采用 **双 Token (Access/Refresh)** 验证机制，全方位降低权限泄露风险。
 
-## 配置
-所有的个人配置都放置在`application-prod.yml`当中，请根据实际内容为主
-```
-domain:
-  url:  ${domain:https://test.wenzhuo4657.org}
-  home:  ${domain.url}/md-web
+## 🛠️ 快速部署
 
-github:
-  client-id:  ${GITHUB_CLIENT_ID}
-  client-secret:  ${GITHUB_CLIENT_SECRET}
-  redirect-uri: ${domain.url}/api/oauth/callback/github
+只需两步，即可在您的服务器上开启 FluxFlow 体验。
 
-email:
-  enable: true
-  config:
-    from: wenzhuo4657@gmail.com
-    to: wenzhuo4657@gmail.com
-    password: ${GMAIL_PASSWORD}
-
-
-```
-
-
-## 部署
-
-
-###  先决条件
-
-##### jdk
-
-  jdk版本 >= 17
-
-##### github oauth 
-
-homepage:   https://your.domain.com:8081/
-redirect-uri: https://your.domain.com:8081/api/oauth/callback/github
-
-ps: 请根据实际部署情况替换路径
-
-##### 域名
-
-a记录解析至目标主机ip
-
-##### 谷歌邮箱
-
-获取邮箱的应用密码
-
-默认关闭，可选
-
-### jar部署
-
-下载项目自行编译得到jar，
-
-```
-nohup java \
-  -Dserver.port=8081 \
-  -Ddir.beifen=/root/snap/daily/beifen \
-  -Demail.enable=false \
-  -Dspring.profiles.active=prod \
-  -Ddomain.url="xxx" \
-  -Dgithub.client-id="xxx" \
-  -Dgithub.client-secret="xxx"  \
-  -jar dailyWeb-1.0-SNAPSHOT.jar > nohup.out 2>&1 &               
+1. 克隆项目
+```bash
+git clone [https://github.com/wenzhuo4657/FluxFlow.git](https://github.com/wenzhuo4657/FluxFlow.git)
+cd FluxFlow
 ```
 
-ps: jar配置定时备份有些麻烦，默认关闭，手动备份
+2. 使用 Docker Compose 启动
+
+```
+# 确保您已配置好 ./devops/docker-compose.yml 中的环境变量
+docker-compose -f ./devops/docker-compose.yml up -d
+```
 
 
 
-###   docker
-暂无
 
+## 👨‍💻 作者
+wenzhuo4657 - 🌍 个人主页: homepage.wz4488.de
 
+📬 联系我: 如果你有任何建议或 Bug 反馈，欢迎提交 Issue。
 
+如果这个项目对你有帮助，请给个 ⭐ Star 支持一下！这也是我持续更新的最大动力。
