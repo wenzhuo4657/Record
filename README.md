@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <strong>🚀 极简、智能、安全的 AI 驱动型日报记录与分发系统</strong>
+  <strong>🚀 极简、智能、安全的 AI 驱动型日报记录</strong>
 </p>
 
 ---
