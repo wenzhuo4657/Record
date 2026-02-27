@@ -44,10 +44,12 @@ public class EmailBackupScheduler {
       log.info("定时任务: 备份   -start");
 
       try {
-          if (index == 0){
+//          if (index == 0){
               index = apiService.registerGmailCommunicator(from, password, to, new String[]{});
-          }
+//          }
           // 直接发送文件
+//          todo 邮箱配置也需要和用户关联，或者将其配置成管理员用户独有的
+//          todo 处理缓存失效的情况
           boolean b = apiService.sendGmailWithFile(index, "dailyWeb", "备份", Main.getDbfilePath().toFile());
 
           if (!b){
