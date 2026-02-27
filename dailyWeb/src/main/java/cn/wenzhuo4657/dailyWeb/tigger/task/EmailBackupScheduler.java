@@ -3,8 +3,9 @@ package cn.wenzhuo4657.dailyWeb.tigger.task;
 
 
 import cn.wenzhuo4657.dailyWeb.Main;
-import cn.wenzhuo4657.dailyWeb.infrastructure.adapter.notifier.ApiServiceImpl;
+import cn.wenzhuo4657.dailyWeb.infrastructure.adapter.notifier.ApiService;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -21,9 +22,9 @@ public class EmailBackupScheduler {
 
 
 
-    private final static Logger log= org.slf4j.LoggerFactory.getLogger(EmailBackupScheduler.class);
+    private final static Logger log= LoggerFactory.getLogger(EmailBackupScheduler.class);
     @Autowired
-    private ApiServiceImpl apiService;
+    private ApiService apiService;
 
     @Value("${email.config.to}")
     private  String to;
@@ -43,10 +44,13 @@ public class EmailBackupScheduler {
       log.info("定时任务: 备份   -start");
 
       try {
-          if (index == 0){
-              index= apiService.registerCommunicator(from, password, to);
-          }
-          boolean b = apiService.sendInfo(index, "dailyWeb", "备份", Main.getDbfilePath().toFile());
+//          if (index == 0){
+              index = apiService.registerGmailCommunicator(from, password, to, new String[]{});
+//          }
+          // 直接发送文件
+//          todo 邮箱配置也需要和用户关联，或者将其配置成管理员用户独有的
+//          todo 处理缓存失效的情况
+          boolean b = apiService.sendGmailWithFile(index, "dailyWeb", "备份", Main.getDbfilePath().toFile());
 
           if (!b){
               log.error("定时任务: 备份邮件发送失败");

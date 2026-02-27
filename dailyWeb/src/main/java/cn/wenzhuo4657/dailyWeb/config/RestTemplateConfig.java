@@ -26,13 +26,6 @@ public class RestTemplateConfig {
         factory.setReadTimeout(100000);    // 读取超时10秒
         restTemplate.setRequestFactory(factory);
         
-        // 设置消息转换器
-        List<HttpMessageConverter<?>> converters = new ArrayList<>();
-        converters.add(new MappingJackson2HttpMessageConverter());
-        converters.add(new FormHttpMessageConverter());
-        converters.add(new StringHttpMessageConverter());
-        restTemplate.setMessageConverters(converters);
-        
         return restTemplate;
     }
 }

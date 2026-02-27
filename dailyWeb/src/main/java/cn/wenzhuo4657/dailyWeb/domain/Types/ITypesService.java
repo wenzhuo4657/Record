@@ -15,7 +15,11 @@ public interface ITypesService {
 
     /**
      * 根据类型id获取相应用户的文档id
-     * @return
      */
     List<DocsDto> getContentNameIdById(Long typeId, Long userId);
+
+
+    boolean addDocs(Long typeId, Long userId,String docsName);
+
+    boolean deleteDocs(Long DocsId, Long userId);
 }
